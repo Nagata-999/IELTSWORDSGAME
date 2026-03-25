@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>IELTS Speed Vocab Game</title>
+  <style>
+    :root {
+      --bg1: #0f172a;
+      --bg2: #1e293b;
+      --panel: rgba(255,255,255,0.10);
+      --panel-strong: rgba(255,255,255,0.16);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #38bdf8;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --warn: #f59e0b;
+      --bomb: #fb7185;
+      --shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1d4ed8 0%, var(--bg1) 45%, #020617 100%);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .app {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      gap: 10px;
+    }
+
+    .panel {
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .combo-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .combo-value {
+      color: #fef08a;
+      font-weight: 700;
+    }
+
+    .question-card {
+      padding: 16px 14px;
+      text-align: center;
+    }
+
+    .question-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: clamp(26px, 6vw, 38px);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      min-height: 48px;
+    }
+
+    .feedback {
+      min-height: 24px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .feedback.good { color: #bbf7d0; }
+    .feedback.bad { color: #fecaca; }
+    .feedback.warn { color: #fde68a; }
+
+    .arena {
+      position: relative;
+      flex: 1;
+      min-height: 320px;
+      overflow: hidden;
+      padding: 8px;
+    }
+
+    .balloon {
+      position: absolute;
+      border: none;
+      border-radius: 999px;
+      padding: 20px 24px;
+      min-width: 130px;
+      max-width: 60vw;
+      font-size: 22px;
+      font-weight: 800;
+      color: #082f49;
+      background: linear-gradient(180deg, #e0f2fe 0%, #7dd3fc 100%);
+      box-shadow: 0 10px 20px rgba(14,165,233,0.25);
+      cursor: pointer;
+      transform: translate3d(0,0,0);
+      transition: transform 0.08s ease, filter 0.15s ease, opacity 0.15s ease;
+      user-select: none;
+      touch-action: manipulation;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .balloon:active {
+      transform: scale(0.96);
+    }
+
+    .balloon.correct-flash {
+      background: linear-gradient(180deg, #dcfce7 0%, #4ade80 100%);
+      color: #14532d;
+    }
+
+    .balloon.wrong-flash {
+      background: linear-gradient(180deg, #fee2e2 0%, #f87171 100%);
+      color: #7f1d1d;
+    }
+
+    .balloon.bomb {
+      background: linear-gradient(180deg, #ffe4e6 0%, #fb7185 100%);
+      color: #881337;
+      box-shadow: 0 10px 20px rgba(244,63,94,0.25);
+    }
+
+    .bottom {
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 800;
+      color: white;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .btn.primary {
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+    }
+
+    .btn.secondary {
+      background: linear-gradient(180deg, #475569 0%, #334155 100%);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(2,6,23,0.72);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 30;
+    }
+
+    .modal {
+      width: min(100%, 420px);
+      padding: 20px;
+      border-radius: 22px;
+      background: rgba(15,23,42,0.88);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .modal h1, .modal h2 {
+      margin: 0 0 10px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 8px 0;
+    }
+
+    .result-grid {
+      margin: 14px 0 18px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .result-box {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .result-box .k {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .result-box .v {
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .combo-popup {
+      position: absolute;
+      top: 48%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      font-size: clamp(44px, 10vw, 72px);
+      font-weight: 1000;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 22;
+      opacity: 0;
+      color: #fff8c5;
+      -webkit-text-stroke: 2px rgba(120, 53, 15, 0.9);
+      text-shadow:
+        0 0 10px rgba(255, 255, 255, 0.35),
+        0 0 24px rgba(250, 204, 21, 0.65),
+        0 6px 0 rgba(146, 64, 14, 0.95),
+        0 12px 18px rgba(0, 0, 0, 0.45);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .combo-popup.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.15);
+      animation: comboPop 0.32s ease;
+    }
+
+    @keyframes comboPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.4) rotate(-6deg);
+      }
+      60% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.28) rotate(2deg);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15) rotate(0deg);
+      }
+    }
+
+    .flash-effect {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(255,245,157,0.75) 30%, rgba(255,255,255,0) 70%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 18;
+    }
+
+    .flash-effect.active {
+      animation: flashAnim 0.28s ease;
+    }
+    
+    .pop-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.pop-particle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #7dd3fc 55%, #38bdf8 100%);
+  opacity: 0.95;
+  animation: burstFly 0.5s ease-out forwards;
+}
+
+@keyframes burstFly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.35);
+    opacity: 0;
+  }
+}
+
+	.balloon.pop-out {
+	  animation: popOut 0.22s ease-out forwards;
+	}
+
+	@keyframes popOut {
+	  0% {
+	    transform: scale(1);
+	    opacity: 1;
+	    filter: brightness(1.1);
+	  }
+	  60% {
+	    transform: scale(1.18);
+	    opacity: 1;
+	    filter: brightness(1.25);
+	  }
+	  100% {
+	    transform: scale(0.2);
+	    opacity: 0;
+	    filter: brightness(1.4);
+	  }
+	}
+
+	.balloon.deflate-fall {
+	  animation: deflateFall 0.55s ease-in forwards;
+	}
+
+	@keyframes deflateFall {
+	  0% {
+	    transform: scale(1, 1) translateY(0) rotate(0deg);
+	    opacity: 1;
+	  }
+	  25% {
+	    transform: scale(0.92, 1.02) translateY(4px) rotate(-4deg);
+	    opacity: 1;
+	  }
+	  55% {
+	    transform: scale(0.72, 1.06) translateY(26px) rotate(6deg);
+	    opacity: 0.9;
+	  }
+	  100% {
+	    transform: scale(0.48, 1.12) translateY(110px) rotate(12deg);
+	    opacity: 0;
+	  }
+	}
+
+    @keyframes flashAnim {
+      0% { opacity: 0.95; }
+      100% { opacity: 0; }
+    }
+
+    @media (max-width: 420px) {
+      .app { padding: 10px; gap: 8px; }
+      .balloon {
+        font-size: 18px;
+        padding: 16px 18px;
+        min-width: 118px;
+        max-width: 64vw;
+      }
+      .question-text { font-size: 28px; }
+      .stat-value { font-size: 20px; }
+      .combo-popup {
+        font-size: 42px;
+        -webkit-text-stroke: 1.5px rgba(120, 53, 15, 0.9);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="panel topbar">
+      <div>
+        <div class="stat">
+          <div class="stat-label">Score</div>
+          <div class="stat-value" id="scoreValue">0</div>
+        </div>
+      </div>
+      <div>
+        <div class="stat">
+          <div class="stat-label">Time</div>
+          <div class="stat-value" id="timeValue">30.0</div>
+        </div>
+      </div>
+      <div>
+        <div class="stat">
+          <div class="stat-label">Combo</div>
+          <div class="stat-value" id="comboValue">x0</div>
+        </div>
+      </div>
+      <div class="combo-line" style="grid-column:1 / -1;">
+        <div>5秒以内でコンボ継続</div>
+        <div><span class="combo-value" id="comboTimerValue">-</span></div>
+      </div>
+    </div>
+
+    <div class="panel question-card">
+      <div class="question-label">日本語に合う英単語をタップ</div>
+      <div class="question-text" id="questionText">準備OK？</div>
+    </div>
+
+    <div class="feedback" id="feedbackText">Start を押してスタート</div>
+
+    <div class="panel arena" id="arena"></div>
+
+    <div id="flashEffect" class="flash-effect"></div>
+    <div id="comboPopup" class="combo-popup">2 COMBO!</div>
+
+    <div class="panel bottom">
+      <button class="btn primary" id="startBtn">Start</button>
+      <button class="btn secondary" id="retryBtn">Retry</button>
+    </div>
+
+    <div class="overlay" id="startOverlay">
+      <div class="modal">
+        <h1>IELTS Speed Vocab</h1>
+        <p></p>
+        <div style="margin-top:16px; display:flex; gap:10px;">
+          <button class="btn primary" id="startOverlayBtn">ゲーム開始</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="resultOverlay">
+      <div class="modal">
+        <h2>Time Up!</h2>
+        <div class="result-grid">
+          <div class="result-box">
+            <div class="k">Final Score</div>
+            <div class="v" id="finalScore">0</div>
+          </div>
+          <div class="result-box">
+            <div class="k">Accuracy</div>
+            <div class="v" id="finalAccuracy">0%</div>
+          </div>
+          <div class="result-box">
+            <div class="k">Correct</div>
+            <div class="v" id="finalCorrect">0</div>
+          </div>
+          <div class="result-box">
+            <div class="k">Max Combo</div>
+            <div class="v" id="finalMaxCombo">0</div>
+          </div>
+        </div>
+    
+        <div style="margin-top:16px; display:flex; gap:10px;">
+          <button class="btn primary" id="playAgainBtn">もう一回</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let audioCtx = null;
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) audioCtx = new Ctx();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, duration = 0.08, type = 'sine', volume = 0.04, slideTo = null) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      if (slideTo) {
+        osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+      }
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + duration + 0.02);
+    }
+
+    function soundCorrect() {
+      playTone(740, 0.08, 'triangle', 0.05, 880);
+    }
+
+    function soundCombo(combo) {
+      if (combo < 2) return;
+      playTone(880, 0.06, 'triangle', 0.045, 1175);
+      setTimeout(() => playTone(1175, 0.06, 'triangle', 0.04, 1480), 55);
+    }
+
+    function soundWrong() {
+      playTone(220, 0.12, 'sawtooth', 0.04, 160);
+    }
+
+    function soundBomb() {
+      playTone(180, 0.16, 'square', 0.05, 80);
+      setTimeout(() => playTone(120, 0.18, 'sawtooth', 0.04, 60), 70);
+    }
+
+    function soundCountdown() {
+      playTone(980, 0.05, 'square', 0.025);
+    }
+
+    function soundGameOver() {
+      playTone(523, 0.10, 'triangle', 0.04, 659);
+      setTimeout(() => playTone(659, 0.10, 'triangle', 0.04, 784), 90);
+      setTimeout(() => playTone(784, 0.14, 'triangle', 0.045, 988), 180);
+    }
+
+const words = [
+{ jp: "廃止する", en: "abolish" },
+{ jp: "曖昧さ", en: "ambiguity" },
+{ jp: "確かめる", en: "ascertain" },
+{ jp: "豊富な", en: "abundant" },
+{ jp: "伴う", en: "accompany" },
+{ jp: "蓄積する", en: "accumulate" },
+{ jp: "隣接した", en: "adjacent" },
+{ jp: "主張する", en: "advocate" },
+{ jp: "割り当てる", en: "allocate" },
+{ jp: "おおよその", en: "approximate" },
+{ jp: "任意の", en: "arbitrary" },
+{ jp: "生じる", en: "arise" },
+{ jp: "仮定", en: "assumption" },
+{ jp: "～のせいにする", en: "attribute" },
+{ jp: "偏り", en: "bias" },
+{ jp: "容量・能力", en: "capacity" },
+{ jp: "終わる", en: "cease" },
+{ jp: "一貫した", en: "coherent" },
+{ jp: "同時に起こる", en: "coincide" },
+{ jp: "まとめる", en: "compile" },
+{ jp: "補完する", en: "complement" },
+{ jp: "複雑さ", en: "complexity" },
+{ jp: "構成要素", en: "component" },
+{ jp: "構成される", en: "comprise" },
+{ jp: "思いつく", en: "conceive" },
+{ jp: "制限する", en: "confine" },
+{ jp: "論争", en: "controversy" },
+{ jp: "招集する", en: "convene" },
+{ jp: "逆の", en: "converse" },
+{ jp: "基準", en: "criteria" },
+{ jp: "重大な", en: "crucial" },
+{ jp: "累積した", en: "cumulative" },
+{ jp: "減少", en: "decline" },
+{ jp: "推測する", en: "deduce" },
+{ jp: "密度", en: "density" },
+{ jp: "引き出す", en: "derive" },
+{ jp: "逸脱する", en: "deviate" },
+{ jp: "個別の", en: "discrete" },
+{ jp: "取って代わる", en: "displace" },
+{ jp: "広める", en: "disseminate" },
+{ jp: "歪める", en: "distort" },
+{ jp: "期間", en: "duration" },
+{ jp: "実証的な", en: "empirical" },
+{ jp: "高める", en: "enhance" },
+{ jp: "莫大な", en: "enormous" },
+{ jp: "同等の", en: "equivalent" },
+{ jp: "徐々に失う", en: "erode" },
+{ jp: "確立する", en: "establish" },
+{ jp: "超える", en: "exceed" },
+{ jp: "さらされること", en: "exposure" },
+{ jp: "促進する", en: "facilitate" },
+{ jp: "変動する", en: "fluctuate" },
+{ jp: "枠組み", en: "framework" },
+{ jp: "基本的な", en: "fundamental" },
+{ jp: "生み出す", en: "generate" },
+{ jp: "仮説", en: "hypothesis" },
+{ jp: "同一の", en: "identical" },
+{ jp: "思想", en: "ideology" },
+{ jp: "含意", en: "implication" },
+{ jp: "課す", en: "impose" },
+{ jp: "動機", en: "incentive" },
+{ jp: "発生率", en: "incidence" },
+{ jp: "傾向がある", en: "incline" },
+{ jp: "引き起こす", en: "induce" },
+{ jp: "避けられない", en: "inevitable" },
+{ jp: "推測する", en: "infer" },
+{ jp: "初期の", en: "initial" },
+{ jp: "例", en: "instance" },
+{ jp: "統合する", en: "integrate" },
+{ jp: "介入する", en: "intervene" },
+{ jp: "分離する", en: "isolate" },
+{ jp: "層", en: "layer" },
+{ jp: "課税する", en: "levy" },
+{ jp: "同様に", en: "likewise" },
+{ jp: "維持する", en: "maintain" },
+{ jp: "差・余白", en: "margin" },
+{ jp: "移動する", en: "migrate" },
+{ jp: "方法", en: "mode" },
+{ jp: "修正する", en: "modify" },
+{ jp: "監視する", en: "monitor" },
+{ jp: "網状組織", en: "network" },
+{ jp: "概念", en: "notion" },
+{ jp: "目的", en: "objective" },
+{ jp: "得る", en: "obtain" },
+{ jp: "相殺する", en: "offset" },
+{ jp: "進行中の", en: "ongoing" },
+{ jp: "全体的な", en: "overall" },
+{ jp: "変数・範囲", en: "parameter" },
+{ jp: "持続する", en: "persist" },
+{ jp: "現象", en: "phenomenon" },
+{ jp: "一部", en: "portion" },
+{ jp: "引き起こす", en: "pose" },
+{ jp: "正確な", en: "precise" },
+{ jp: "予測する", en: "predict" },
+{ jp: "支配的な", en: "predominant" },
+{ jp: "予備の", en: "preliminary" },
+{ jp: "推定する", en: "presume" },
+{ jp: "前の", en: "previous" },
+{ jp: "主に", en: "primarily" },
+{ jp: "以前の", en: "prior" },
+{ jp: "禁止する", en: "prohibit" },
+{ jp: "重要な・著名な", en: "prominent" },
+{ jp: "割合", en: "proportion" },
+{ jp: "急進的な", en: "radical" },
+{ jp: "無作為の", en: "random" },
+{ jp: "範囲", en: "range" },
+{ jp: "比率", en: "ratio" },
+{ jp: "改良する", en: "refine" },
+{ jp: "体制", en: "regime" },
+{ jp: "強化する", en: "reinforce" },
+{ jp: "気が進まない", en: "reluctant" },
+{ jp: "取り除く", en: "remove" },
+{ jp: "必要とする", en: "require" },
+{ jp: "解決する", en: "resolve" },
+{ jp: "保持する", en: "retain" },
+{ jp: "明らかにする", en: "reveal" },
+{ jp: "逆転する", en: "reverse" },
+{ jp: "修正する", en: "revise" },
+{ jp: "予定", en: "schedule" },
+{ jp: "分野", en: "sector" },
+{ jp: "変化", en: "shift" },
+{ jp: "重要な", en: "significant" },
+{ jp: "模擬する", en: "simulate" },
+{ jp: "場所", en: "site" },
+{ jp: "いわゆる", en: "so-called" },
+{ jp: "いくぶん", en: "somewhat" },
+{ jp: "十分な", en: "sufficient" },
+{ jp: "その後の", en: "subsequent" },
+{ jp: "合計", en: "sum" },
+{ jp: "調査", en: "survey" },
+{ jp: "一時停止する", en: "suspend" },
+{ jp: "維持する", en: "sustain" },
+{ jp: "目標", en: "target" },
+{ jp: "技術的な", en: "technical" },
+{ jp: "一時的な", en: "temporary" },
+{ jp: "理論的な", en: "theoretical" },
+{ jp: "それによって", en: "thereby" },
+{ jp: "引き起こす", en: "trigger" },
+{ jp: "最終的な", en: "ultimate" },
+{ jp: "経験する", en: "undergo" },
+{ jp: "利用する", en: "utilize" },
+{ jp: "有効な", en: "valid" },
+{ jp: "～を通じて", en: "via" },
+{ jp: "量", en: "volume" },
+{ jp: "一方で", en: "whereas" },
+{ jp: "突然の", en: "abrupt" },
+{ jp: "抽象的な", en: "abstract" },
+{ jp: "加速する", en: "accelerate" },
+{ jp: "適応する・収容する", en: "accommodate" },
+{ jp: "合計の・集合した", en: "aggregate" },
+{ jp: "予期する", en: "anticipate" },
+{ jp: "明らかな", en: "apparent" },
+{ jp: "自動化する", en: "automate" },
+{ jp: "大部分", en: "bulk" },
+{ jp: "互換性のある", en: "compatible" },
+{ jp: "包括的な", en: "comprehensive" },
+{ jp: "論争の的の", en: "controversial" },
+{ jp: "劣化させる", en: "degrade" },
+{ jp: "示す", en: "denote" },
+{ jp: "発見する", en: "detect" },
+{ jp: "減少する", en: "diminish" },
+{ jp: "排除する", en: "eliminate" },
+{ jp: "施行する", en: "enforce" },
+{ jp: "明確な", en: "explicit" },
+{ jp: "活用する・搾取する", en: "exploit" },
+{ jp: "抽出する", en: "extract" },
+{ jp: "来たるべき", en: "forthcoming" },
+{ jp: "説明する", en: "illustrate" },
+{ jp: "最初は", en: "initially" },
+{ jp: "本質的な", en: "intrinsic" },
+{ jp: "不利な・有害な", en: "adverse" },
+{ jp: "～ではあるが", en: "albeit" },
+{ jp: "類似した", en: "analogous" },
+{ jp: "異常・例外", en: "anomaly" },
+{ jp: "装置", en: "apparatus" },
+{ jp: "かなりの", en: "appreciable" },
+{ jp: "～のせいにする", en: "ascribe" },
+{ jp: "同化する・吸収する", en: "assimilate" },
+{ jp: "弱める", en: "attenuate" },
+{ jp: "相応の", en: "commensurate" },
+{ jp: "与える", en: "confer" },
+{ jp: "矛盾する", en: "contradict" },
+{ jp: "詳述する", en: "delineate" },
+{ jp: "分岐する・逸脱する", en: "diverge" },
+{ jp: "均衡", en: "equilibrium" },
+{ jp: "悪化させる", en: "exacerbate" },
+{ jp: "実行可能な", en: "feasible" },
+{ jp: "体系化する", en: "formulate" },
+{ jp: "不可欠な", en: "integral" },
+{ jp: "引き起こす", en: "invoke" },
+{ jp: "わずかな", en: "marginal" },
+{ jp: "～にもかかわらず", en: "notwithstanding" },
+{ jp: "逆説", en: "paradox" },
+{ jp: "認識する", en: "perceive" },
+{ jp: "仮の", en: "tentative" },
+{ jp: "逸脱・異常", en: "aberration" },
+{ jp: "抽象概念", en: "abstraction" },
+{ jp: "蓄積する", en: "accrue" },
+{ jp: "出現", en: "advent" },
+{ jp: "一致", en: "alignment" },
+{ jp: "原型", en: "archetype" },
+{ jp: "非対称", en: "asymmetry" },
+{ jp: "自律した", en: "autonomous" },
+{ jp: "結束", en: "cohesion" },
+{ jp: "主張する", en: "contend" },
+{ jp: "～次第の", en: "contingent" },
+{ jp: "収束", en: "convergence" },
+{ jp: "相関", en: "correlation" },
+{ jp: "決定要因", en: "determinant" },
+{ jp: "拡散", en: "diffusion" },
+{ jp: "格差", en: "disparity" },
+{ jp: "特徴的な", en: "distinctive" },
+{ jp: "領域", en: "domain" },
+{ jp: "出現", en: "emergence" },
+{ jp: "固有の", en: "endemic" },
+{ jp: "進化の", en: "evolutionary" },
+{ jp: "指数関数的な", en: "exponential" },
+{ jp: "欠点", en: "flaw" },
+{ jp: "階層", en: "hierarchy" },
+{ jp: "仮説の", en: "hypothetical" },
+{ jp: "基盤", en: "infrastructure" },
+{ jp: "相互作用", en: "interplay" },
+{ jp: "可能性", en: "likelihood" },
+{ jp: "表れ", en: "manifestation" },
+{ jp: "仕組み", en: "mechanism" },
+{ jp: "理論枠組み", en: "paradigm" },
+{ jp: "周辺の", en: "peripheral" },
+{ jp: "優勢", en: "predominance" },
+{ jp: "見込み", en: "prospect" },
+{ jp: "手順", en: "protocol" },
+{ jp: "質的な", en: "qualitative" },
+{ jp: "量的な", en: "quantitative" },
+{ jp: "改良", en: "refinement" },
+{ jp: "規制", en: "regulation" },
+{ jp: "回復力", en: "resilience" },
+{ jp: "保持", en: "retention" },
+{ jp: "想定", en: "scenario" },
+{ jp: "安定", en: "stability" },
+{ jp: "従属する", en: "subordinate" },
+{ jp: "置換", en: "substitution" },
+{ jp: "連続する", en: "successive" },
+{ jp: "統合", en: "synthesis" },
+{ jp: "閾値", en: "threshold" },
+{ jp: "軌道・推移", en: "trajectory" },
+{ jp: "根底にある", en: "underlying" },
+{ jp: "妥当性", en: "validity" },
+{ jp: "変動", en: "variation" },
+{ jp: "広範囲の", en: "widespread" }
+];
+
+    const scoreValue = document.getElementById('scoreValue');
+    const timeValue = document.getElementById('timeValue');
+    const comboValue = document.getElementById('comboValue');
+    const comboTimerValue = document.getElementById('comboTimerValue');
+    const questionText = document.getElementById('questionText');
+    const feedbackText = document.getElementById('feedbackText');
+    const arena = document.getElementById('arena');
+    const startOverlay = document.getElementById('startOverlay');
+    const resultOverlay = document.getElementById('resultOverlay');
+
+    const startBtn = document.getElementById('startBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const startOverlayBtn = document.getElementById('startOverlayBtn');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+
+    const finalScore = document.getElementById('finalScore');
+    const finalAccuracy = document.getElementById('finalAccuracy');
+    const finalCorrect = document.getElementById('finalCorrect');
+    const finalMaxCombo = document.getElementById('finalMaxCombo');
+
+    const comboPopup = document.getElementById('comboPopup');
+    const flashEffect = document.getElementById('flashEffect');
+
+    const GAME = {
+      lastCountdownBeepSecond: null,
+      running: false,
+      score: 0,
+      timeLeft: 30,
+      combo: 0,
+      maxCombo: 0,
+      correctCount: 0,
+      attemptCount: 0,
+      currentQuestion: null,
+      comboDeadline: null,
+      questionLocked: false,
+      tickTimer: null,
+      animTimer: null,
+      balloons: []
+    };
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function pickQuestion() {
+      return words[Math.floor(Math.random() * words.length)];
+    }
+
+    function getDistractors(correctEn, count = 6) {
+      return shuffle(words.filter(w => w.en !== correctEn)).slice(0, count).map(w => w.en);
+    }
+
+    function getMultiplier(combo) {
+      if (combo >= 10) return 3;
+      if (combo >= 5) return 2;
+      if (combo >= 3) return 1.5;
+      return 1;
+    }
+
+    function updateHud() {
+      scoreValue.textContent = Math.round(GAME.score);
+      timeValue.textContent = Math.max(0, GAME.timeLeft).toFixed(1);
+      comboValue.textContent = `x${GAME.combo}`;
+
+      if (GAME.comboDeadline && GAME.running) {
+        const remain = Math.max(0, (GAME.comboDeadline - performance.now()) / 1000);
+        comboTimerValue.textContent = remain > 0 ? `${remain.toFixed(1)}s` : '0.0s';
+      } else {
+        comboTimerValue.textContent = '-';
+      }
+    }
+
+    function setFeedback(text, mode = '') {
+      feedbackText.textContent = text;
+      feedbackText.className = `feedback ${mode}`.trim();
+    }
+
+    function clearArena() {
+      arena.innerHTML = '';
+      GAME.balloons = [];
+    }
+
+    function showComboPopup(combo) {
+      comboPopup.classList.remove('show');
+
+      if (combo < 2) {
+        comboPopup.style.opacity = '0';
+        return;
+      }
+
+      comboPopup.textContent = `${combo} COMBO!`;
+      void comboPopup.offsetWidth;
+      comboPopup.classList.add('show');
+    }
+
+    function triggerFlash() {
+      flashEffect.classList.remove('active');
+      void flashEffect.offsetWidth;
+      flashEffect.classList.add('active');
+    }
+
+    function createBalloon(text, type, index, total) {
+      const btn = document.createElement('button');
+      btn.className = `balloon ${type === 'bomb' ? 'bomb' : ''}`;
+      btn.textContent = type === 'bomb' ? '💣' : text;
+      btn.dataset.type = type;
+      btn.dataset.value = text;
+
+      const arenaRect = arena.getBoundingClientRect();
+      const cols = 3;
+      const rows = Math.ceil(total / cols);
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      const cellW = arenaRect.width / cols;
+      const cellH = arenaRect.height / Math.max(rows, 3);
+
+      const baseX = col * cellW + cellW / 2;
+      const baseY = row * cellH + cellH / 2;
+
+      const dx = (Math.random() - 0.5) * Math.min(40, cellW * 0.35);
+      const dy = (Math.random() - 0.5) * Math.min(36, cellH * 0.35);
+
+      const x = Math.max(14, Math.min(arenaRect.width - 150, baseX - 70 + dx));
+      const y = Math.max(14, Math.min(arenaRect.height - 80, baseY - 40 + dy));
+
+      btn.style.left = `${x}px`;
+      btn.style.top = `${y}px`;
+
+      const speedX = (Math.random() * 0.5 + 0.25) * (Math.random() < 0.5 ? -1 : 1);
+      const speedY = (Math.random() * 0.35 + 0.15) * (Math.random() < 0.5 ? -1 : 1);
+
+      const balloonObj = { el: btn, x, y, vx: speedX, vy: speedY, w: 150, h: 80 };
+      GAME.balloons.push(balloonObj);
+
+      btn.addEventListener('click', () => handleTap(btn));
+      arena.appendChild(btn);
+    }
+
+    function renderQuestion() {
+      clearArena();
+      GAME.currentQuestion = pickQuestion();
+      questionText.textContent = GAME.currentQuestion.jp;
+      GAME.questionLocked = false;
+      GAME.lastCountdownBeepSecond = null;
+
+      const choices = shuffle([
+        GAME.currentQuestion.en,
+        ...getDistractors(GAME.currentQuestion.en, 6),
+        '__BOMB__'
+      ]);
+
+      choices.forEach((choice, index) => {
+        const type = choice === '__BOMB__' ? 'bomb' : (choice === GAME.currentQuestion.en ? 'correct' : 'wrong');
+        createBalloon(choice, type, index, choices.length);
+      });
+    }
+
+    function handleComboOnCorrect(now) {
+      if (GAME.comboDeadline && now <= GAME.comboDeadline) {
+        GAME.combo += 1;
+      } else {
+        GAME.combo = 1;
+      }
+      GAME.comboDeadline = now + 5000;
+      if (GAME.combo > GAME.maxCombo) GAME.maxCombo = GAME.combo;
+      showComboPopup(GAME.combo);
+
+      if (GAME.combo >= 5) {
+        triggerFlash();
+      }
+    }
+
+    function handleTap(button) {
+  if (!GAME.running || GAME.questionLocked) return;
+
+  const now = performance.now();
+  const type = button.dataset.type;
+
+  if (type === 'correct') {
+    GAME.questionLocked = true;
+    GAME.attemptCount += 1;
+
+    ensureAudio();
+    GAME.correctCount += 1;
+    handleComboOnCorrect(now);
+
+    const gained = 10 * getMultiplier(GAME.combo);
+    GAME.score += gained;
+    GAME.timeLeft += 2;
+
+    button.classList.add('correct-flash');
+    playCorrectEffect(button);
+    setFeedback(`Nice! +${gained}点 / Combo x${GAME.combo}`, 'good');
+    soundCorrect();
+    soundCombo(GAME.combo);
+
+    updateHud();
+
+    setTimeout(() => {
+      if (!GAME.running) return;
+      renderQuestion();
+    }, 420);
+
+  } else if (type === 'bomb') {
+    GAME.attemptCount += 1;
+
+    ensureAudio();
+    GAME.combo = 0;
+    GAME.comboDeadline = null;
+    showComboPopup(0);
+
+    GAME.score = Math.max(0, GAME.score - 20);
+    GAME.timeLeft = Math.max(0, GAME.timeLeft - 5);
+
+    button.classList.add('wrong-flash');
+    playWrongEffect(button);
+    setFeedback('💣 Bomb! -20点 / -5秒', 'warn');
+    soundBomb();
+
+    removeBalloon(button);
+    updateHud();
+
+  } else {
+    GAME.attemptCount += 1;
+
+    ensureAudio();
+    GAME.combo = 0;
+    GAME.comboDeadline = null;
+    showComboPopup(0);
+
+    GAME.score = Math.max(0, GAME.score - 5);
+    GAME.timeLeft = Math.max(0, GAME.timeLeft - 3);
+
+    button.classList.add('wrong-flash');
+    playWrongEffect(button);
+    setFeedback('Miss! -5点 / -3秒', 'bad');
+    soundWrong();
+
+    removeBalloon(button);
+    updateHud();
+  }
+}
+
+    function tick() {
+      if (!GAME.running) return;
+
+      GAME.timeLeft -= 0.1;
+
+      if (GAME.comboDeadline && performance.now() > GAME.comboDeadline) {
+        GAME.combo = 0;
+        GAME.comboDeadline = null;
+        showComboPopup(0);
+      }
+
+      const countdownSecond = Math.ceil(GAME.timeLeft);
+      if (GAME.timeLeft <= 10 && countdownSecond > 0 && GAME.lastCountdownBeepSecond !== countdownSecond) {
+        GAME.lastCountdownBeepSecond = countdownSecond;
+        ensureAudio();
+        soundCountdown();
+      }
+
+      if (GAME.timeLeft <= 0) {
+        GAME.timeLeft = 0;
+        endGame();
+        return;
+      }
+
+      updateHud();
+    }
+
+    function animateBalloons() {
+      if (!GAME.running) return;
+      const arenaRect = arena.getBoundingClientRect();
+
+      GAME.balloons.forEach(b => {
+        b.x += b.vx;
+        b.y += b.vy;
+
+        const maxX = Math.max(10, arenaRect.width - b.w - 10);
+        const maxY = Math.max(10, arenaRect.height - b.h - 10);
+
+        if (b.x <= 10 || b.x >= maxX) b.vx *= -1;
+        if (b.y <= 10 || b.y >= maxY) b.vy *= -1;
+
+        b.x = Math.max(10, Math.min(maxX, b.x));
+        b.y = Math.max(10, Math.min(maxY, b.y));
+        b.el.style.transform = `translate3d(${b.x - parseFloat(b.el.style.left)}px, ${b.y - parseFloat(b.el.style.top)}px, 0)`;
+      });
+
+      GAME.animTimer = requestAnimationFrame(animateBalloons);
+    }
+
+    function startGame() {
+      ensureAudio();
+      GAME.running = true;
+      GAME.score = 0;
+      GAME.timeLeft = 30;
+      GAME.combo = 0;
+      GAME.maxCombo = 0;
+      GAME.correctCount = 0;
+      GAME.attemptCount = 0;
+      GAME.comboDeadline = null;
+      GAME.questionLocked = false;
+      GAME.lastCountdownBeepSecond = null;
+      showComboPopup(0);
+
+      startOverlay.classList.add('hidden');
+      resultOverlay.classList.add('hidden');
+      setFeedback('5秒以内の連続正解でコンボ継続', '');
+      renderQuestion();
+      updateHud();
+
+      clearInterval(GAME.tickTimer);
+      cancelAnimationFrame(GAME.animTimer);
+      GAME.tickTimer = setInterval(tick, 100);
+      GAME.animTimer = requestAnimationFrame(animateBalloons);
+    }
+    
+    function createBurstEffect(targetEl) {
+	  const rect = targetEl.getBoundingClientRect();
+	  const arenaRect = arena.getBoundingClientRect();
+
+	  const burst = document.createElement('div');
+	  burst.className = 'pop-burst';
+	  burst.style.left = '0';
+	  burst.style.top = '0';
+
+	  const cx = rect.left - arenaRect.left + rect.width / 2;
+	  const cy = rect.top - arenaRect.top + rect.height / 2;
+
+	  for (let i = 0; i < 10; i++) {
+	    const p = document.createElement('div');
+	    p.className = 'pop-particle';
+	    p.style.left = `${cx}px`;
+	    p.style.top = `${cy}px`;
+
+	    const angle = (Math.PI * 2 * i) / 10 + Math.random() * 0.35;
+	    const dist = 35 + Math.random() * 40;
+	    const dx = Math.cos(angle) * dist;
+	    const dy = Math.sin(angle) * dist;
+
+	    p.style.setProperty('--dx', `${dx}px`);
+	    p.style.setProperty('--dy', `${dy}px`);
+	    burst.appendChild(p);
+	  }
+
+	  arena.appendChild(burst);
+	  setTimeout(() => burst.remove(), 520);
+	}
+
+	function playCorrectEffect(button) {
+	  createBurstEffect(button);
+	  button.classList.add('pop-out');
+	}
+
+	function playWrongEffect(button) {
+	  button.classList.add('deflate-fall');
+	}
+
+function removeBalloon(button) {
+  GAME.balloons = GAME.balloons.filter(b => b.el !== button);
+
+  setTimeout(() => {
+    if (button && button.parentNode) {
+      button.remove();
+    }
+  }, 520);
+}
+
+    function endGame() {
+      ensureAudio();
+      GAME.running = false;
+      clearInterval(GAME.tickTimer);
+      cancelAnimationFrame(GAME.animTimer);
+      GAME.comboDeadline = null;
+      showComboPopup(0);
+      updateHud();
+      questionText.textContent = '終了！';
+      setFeedback('おつかれさま。結果を確認しよう。');
+      soundGameOver();
+
+      const accuracy = GAME.attemptCount ? Math.round((GAME.correctCount / GAME.attemptCount) * 100) : 0;
+      const bonusScore = GAME.score + GAME.maxCombo * 5 + Math.round(GAME.timeLeft) * 2;
+
+      finalScore.textContent = Math.round(bonusScore);
+      finalAccuracy.textContent = `${accuracy}%`;
+      finalCorrect.textContent = GAME.correctCount;
+      finalMaxCombo.textContent = GAME.maxCombo;
+      resultOverlay.classList.remove('hidden');
+    }
+
+    startBtn.addEventListener('click', startGame);
+    retryBtn.addEventListener('click', startGame);
+    startOverlayBtn.addEventListener('click', startGame);
+    playAgainBtn.addEventListener('click', startGame);
+
+    window.addEventListener('resize', () => {
+      if (GAME.running) {
+        renderQuestion();
+      }
+    });
+  </script>
+</body>
+</html>
