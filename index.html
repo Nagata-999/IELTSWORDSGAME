@@ -41,6 +41,7 @@
     }
 
     .app {
+      position: relative;
       width: 100%;
       max-width: 520px;
       height: 100dvh;
@@ -142,10 +143,10 @@
       position: absolute;
       border: none;
       border-radius: 999px;
-      padding: 14px 18px;
-      min-width: 92px;
-      max-width: 42vw;
-      font-size: 18px;
+      padding: 20px 24px;
+      min-width: 130px;
+      max-width: 60vw;
+      font-size: 22px;
       font-weight: 800;
       color: #082f49;
       background: linear-gradient(180deg, #e0f2fe 0%, #7dd3fc 100%);
@@ -215,7 +216,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      z-index: 10;
+      z-index: 30;
     }
 
     .modal {
@@ -271,11 +272,156 @@
       display: none !important;
     }
 
+    .combo-popup {
+      position: absolute;
+      top: 48%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      font-size: clamp(44px, 10vw, 72px);
+      font-weight: 1000;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 22;
+      opacity: 0;
+      color: #fff8c5;
+      -webkit-text-stroke: 2px rgba(120, 53, 15, 0.9);
+      text-shadow:
+        0 0 10px rgba(255, 255, 255, 0.35),
+        0 0 24px rgba(250, 204, 21, 0.65),
+        0 6px 0 rgba(146, 64, 14, 0.95),
+        0 12px 18px rgba(0, 0, 0, 0.45);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .combo-popup.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.15);
+      animation: comboPop 0.32s ease;
+    }
+
+    @keyframes comboPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.4) rotate(-6deg);
+      }
+      60% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.28) rotate(2deg);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15) rotate(0deg);
+      }
+    }
+
+    .flash-effect {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(255,245,157,0.75) 30%, rgba(255,255,255,0) 70%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 18;
+    }
+
+    .flash-effect.active {
+      animation: flashAnim 0.28s ease;
+    }
+    
+    .pop-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.pop-particle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #7dd3fc 55%, #38bdf8 100%);
+  opacity: 0.95;
+  animation: burstFly 0.5s ease-out forwards;
+}
+
+@keyframes burstFly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.35);
+    opacity: 0;
+  }
+}
+
+	.balloon.pop-out {
+	  animation: popOut 0.22s ease-out forwards;
+	}
+
+	@keyframes popOut {
+	  0% {
+	    transform: scale(1);
+	    opacity: 1;
+	    filter: brightness(1.1);
+	  }
+	  60% {
+	    transform: scale(1.18);
+	    opacity: 1;
+	    filter: brightness(1.25);
+	  }
+	  100% {
+	    transform: scale(0.2);
+	    opacity: 0;
+	    filter: brightness(1.4);
+	  }
+	}
+
+	.balloon.deflate-fall {
+	  animation: deflateFall 0.55s ease-in forwards;
+	}
+
+	@keyframes deflateFall {
+	  0% {
+	    transform: scale(1, 1) translateY(0) rotate(0deg);
+	    opacity: 1;
+	  }
+	  25% {
+	    transform: scale(0.92, 1.02) translateY(4px) rotate(-4deg);
+	    opacity: 1;
+	  }
+	  55% {
+	    transform: scale(0.72, 1.06) translateY(26px) rotate(6deg);
+	    opacity: 0.9;
+	  }
+	  100% {
+	    transform: scale(0.48, 1.12) translateY(110px) rotate(12deg);
+	    opacity: 0;
+	  }
+	}
+
+    @keyframes flashAnim {
+      0% { opacity: 0.95; }
+      100% { opacity: 0; }
+    }
+
     @media (max-width: 420px) {
       .app { padding: 10px; gap: 8px; }
-      .balloon { font-size: 16px; padding: 12px 14px; min-width: 84px; }
+      .balloon {
+        font-size: 18px;
+        padding: 16px 18px;
+        min-width: 118px;
+        max-width: 64vw;
+      }
       .question-text { font-size: 28px; }
       .stat-value { font-size: 20px; }
+      .combo-popup {
+        font-size: 42px;
+        -webkit-text-stroke: 1.5px rgba(120, 53, 15, 0.9);
+      }
     }
   </style>
 </head>
@@ -291,7 +437,7 @@
       <div>
         <div class="stat">
           <div class="stat-label">Time</div>
-          <div class="stat-value" id="timeValue">60.0</div>
+          <div class="stat-value" id="timeValue">30.0</div>
         </div>
       </div>
       <div>
@@ -301,7 +447,7 @@
         </div>
       </div>
       <div class="combo-line" style="grid-column:1 / -1;">
-        <div>3秒以内でコンボ継続</div>
+        <div>5秒以内でコンボ継続</div>
         <div><span class="combo-value" id="comboTimerValue">-</span></div>
       </div>
     </div>
@@ -315,46 +461,49 @@
 
     <div class="panel arena" id="arena"></div>
 
+    <div id="flashEffect" class="flash-effect"></div>
+    <div id="comboPopup" class="combo-popup">2 COMBO!</div>
+
     <div class="panel bottom">
       <button class="btn primary" id="startBtn">Start</button>
       <button class="btn secondary" id="retryBtn">Retry</button>
     </div>
-  </div>
 
-  <div class="overlay" id="startOverlay">
-    <div class="modal">
-      <h1>IELTS Speed Vocab</h1>
-      <p></p>
-      <div style="margin-top:16px; display:flex; gap:10px;">
-        <button class="btn primary" id="startOverlayBtn">ゲーム開始</button>
+    <div class="overlay" id="startOverlay">
+      <div class="modal">
+        <h1>IELTS Speed Vocab</h1>
+        <p></p>
+        <div style="margin-top:16px; display:flex; gap:10px;">
+          <button class="btn primary" id="startOverlayBtn">ゲーム開始</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="overlay hidden" id="resultOverlay">
-    <div class="modal">
-      <h2>Time Up!</h2>
-      <div class="result-grid">
-        <div class="result-box">
-          <div class="k">Final Score</div>
-          <div class="v" id="finalScore">0</div>
+    <div class="overlay hidden" id="resultOverlay">
+      <div class="modal">
+        <h2>Time Up!</h2>
+        <div class="result-grid">
+          <div class="result-box">
+            <div class="k">Final Score</div>
+            <div class="v" id="finalScore">0</div>
+          </div>
+          <div class="result-box">
+            <div class="k">Accuracy</div>
+            <div class="v" id="finalAccuracy">0%</div>
+          </div>
+          <div class="result-box">
+            <div class="k">Correct</div>
+            <div class="v" id="finalCorrect">0</div>
+          </div>
+          <div class="result-box">
+            <div class="k">Max Combo</div>
+            <div class="v" id="finalMaxCombo">0</div>
+          </div>
         </div>
-        <div class="result-box">
-          <div class="k">Accuracy</div>
-          <div class="v" id="finalAccuracy">0%</div>
+    
+        <div style="margin-top:16px; display:flex; gap:10px;">
+          <button class="btn primary" id="playAgainBtn">もう一回</button>
         </div>
-        <div class="result-box">
-          <div class="k">Correct</div>
-          <div class="v" id="finalCorrect">0</div>
-        </div>
-        <div class="result-box">
-          <div class="k">Max Combo</div>
-          <div class="v" id="finalMaxCombo">0</div>
-        </div>
-      </div>
-      <p class="small">この版はまず動く最小版です。次に Supabase をつなげればランキング化できます。</p>
-      <div style="margin-top:16px; display:flex; gap:10px;">
-        <button class="btn primary" id="playAgainBtn">もう一回</button>
       </div>
     </div>
   </div>
@@ -419,7 +568,8 @@
       setTimeout(() => playTone(659, 0.10, 'triangle', 0.04, 784), 90);
       setTimeout(() => playTone(784, 0.14, 'triangle', 0.045, 988), 180);
     }
-   const words = [
+
+const words = [
 { jp: "廃止する", en: "abolish" },
 { jp: "曖昧さ", en: "ambiguity" },
 { jp: "確かめる", en: "ascertain" },
@@ -690,11 +840,14 @@
     const finalCorrect = document.getElementById('finalCorrect');
     const finalMaxCombo = document.getElementById('finalMaxCombo');
 
+    const comboPopup = document.getElementById('comboPopup');
+    const flashEffect = document.getElementById('flashEffect');
+
     const GAME = {
       lastCountdownBeepSecond: null,
       running: false,
       score: 0,
-      timeLeft: 60,
+      timeLeft: 30,
       combo: 0,
       maxCombo: 0,
       correctCount: 0,
@@ -720,7 +873,7 @@
       return words[Math.floor(Math.random() * words.length)];
     }
 
-    function getDistractors(correctEn, count = 8) {
+    function getDistractors(correctEn, count = 6) {
       return shuffle(words.filter(w => w.en !== correctEn)).slice(0, count).map(w => w.en);
     }
 
@@ -754,43 +907,108 @@
       GAME.balloons = [];
     }
 
-    function createBalloon(text, type, index, total) {
-      const btn = document.createElement('button');
-      btn.className = `balloon ${type === 'bomb' ? 'bomb' : ''}`;
-      btn.textContent = type === 'bomb' ? '💣' : text;
-      btn.dataset.type = type;
-      btn.dataset.value = text;
+    function showComboPopup(combo) {
+      comboPopup.classList.remove('show');
 
-      const arenaRect = arena.getBoundingClientRect();
-      const cols = 3;
-      const rows = Math.ceil(total / cols);
-      const col = index % cols;
-      const row = Math.floor(index / cols);
-      const cellW = arenaRect.width / cols;
-      const cellH = arenaRect.height / Math.max(rows, 3);
+      if (combo < 2) {
+        comboPopup.style.opacity = '0';
+        return;
+      }
 
-      const baseX = col * cellW + cellW / 2;
-      const baseY = row * cellH + cellH / 2;
-
-      const dx = (Math.random() - 0.5) * Math.min(40, cellW * 0.35);
-      const dy = (Math.random() - 0.5) * Math.min(36, cellH * 0.35);
-
-      const x = Math.max(14, Math.min(arenaRect.width - 110, baseX - 50 + dx));
-      const y = Math.max(14, Math.min(arenaRect.height - 60, baseY - 26 + dy));
-
-      btn.style.left = `${x}px`;
-      btn.style.top = `${y}px`;
-
-      const speedX = (Math.random() * 0.5 + 0.25) * (Math.random() < 0.5 ? -1 : 1);
-      const speedY = (Math.random() * 0.35 + 0.15) * (Math.random() < 0.5 ? -1 : 1);
-
-      const balloonObj = { el: btn, x, y, vx: speedX, vy: speedY, w: 110, h: 56 };
-      GAME.balloons.push(balloonObj);
-
-      btn.addEventListener('click', () => handleTap(btn));
-      arena.appendChild(btn);
+      comboPopup.textContent = `${combo} COMBO!`;
+      void comboPopup.offsetWidth;
+      comboPopup.classList.add('show');
     }
 
+    function triggerFlash() {
+      flashEffect.classList.remove('active');
+      void flashEffect.offsetWidth;
+      flashEffect.classList.add('active');
+    }
+
+function createBalloon(text, type, index, total) {
+  const btn = document.createElement('button');
+  btn.className = `balloon ${type === 'bomb' ? 'bomb' : ''}`;
+  btn.textContent = type === 'bomb' ? '💣' : text;
+  btn.dataset.type = type;
+  btn.dataset.value = text;
+
+  arena.appendChild(btn);
+
+  const arenaRect = arena.getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  const padding = 12;
+  const gap = 14;
+  const balloonW = Math.ceil(btnRect.width);
+  const balloonH = Math.ceil(btnRect.height);
+
+  const cols = 2;
+  const rows = Math.ceil(total / cols);
+  const col = index % cols;
+  const row = Math.floor(index / cols);
+  const cellW = arenaRect.width / cols;
+  const cellH = arenaRect.height / Math.max(rows, 3);
+
+  let minX = Math.max(padding, col * cellW + 6);
+  let maxX = Math.min(
+    arenaRect.width - balloonW - padding,
+    (col + 1) * cellW - balloonW - 6
+  );
+  let minY = Math.max(padding, row * cellH + 6);
+  let maxY = Math.min(
+    arenaRect.height - balloonH - padding,
+    (row + 1) * cellH - balloonH - 6
+  );
+
+  if (maxX < minX) {
+    minX = Math.max(padding, Math.min(minX, arenaRect.width - balloonW - padding));
+    maxX = minX;
+  }
+  if (maxY < minY) {
+    minY = Math.max(padding, Math.min(minY, arenaRect.height - balloonH - padding));
+    maxY = minY;
+  }
+
+  let x = minX;
+  let y = minY;
+  let placed = false;
+
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const testX = minX + Math.random() * Math.max(0, maxX - minX);
+    const testY = minY + Math.random() * Math.max(0, maxY - minY);
+
+    const overlaps = GAME.balloons.some(b => {
+      return !(
+        testX + balloonW + gap < b.x ||
+        testX > b.x + b.w + gap ||
+        testY + balloonH + gap < b.y ||
+        testY > b.y + b.h + gap
+      );
+    });
+
+    if (!overlaps) {
+      x = testX;
+      y = testY;
+      placed = true;
+      break;
+    }
+  }
+
+  if (!placed) {
+    const fallbackX = col * cellW + (cellW - balloonW) / 2;
+    const fallbackY = row * cellH + (cellH - balloonH) / 2;
+    x = Math.max(padding, Math.min(arenaRect.width - balloonW - padding, fallbackX));
+    y = Math.max(padding, Math.min(arenaRect.height - balloonH - padding, fallbackY));
+  }
+
+  btn.style.left = `${x}px`;
+  btn.style.top = `${y}px`;
+
+  const balloonObj = { el: btn, x, y, vx: 0, vy: 0, w: balloonW, h: balloonH };
+  GAME.balloons.push(balloonObj);
+
+  btn.addEventListener('click', () => handleTap(btn));
+}
     function renderQuestion() {
       clearArena();
       GAME.currentQuestion = pickQuestion();
@@ -800,7 +1018,7 @@
 
       const choices = shuffle([
         GAME.currentQuestion.en,
-        ...getDistractors(GAME.currentQuestion.en, 8),
+        ...getDistractors(GAME.currentQuestion.en, 6),
         '__BOMB__'
       ]);
 
@@ -816,55 +1034,85 @@
       } else {
         GAME.combo = 1;
       }
-      GAME.comboDeadline = now + 3000;
+      GAME.comboDeadline = now + 5000;
       if (GAME.combo > GAME.maxCombo) GAME.maxCombo = GAME.combo;
+      showComboPopup(GAME.combo);
+
+      if (GAME.combo >= 5) {
+        triggerFlash();
+      }
     }
 
     function handleTap(button) {
-      if (!GAME.running || GAME.questionLocked) return;
-      GAME.questionLocked = true;
-      GAME.attemptCount += 1;
+  if (!GAME.running || GAME.questionLocked) return;
 
-      const now = performance.now();
-      const type = button.dataset.type;
+  const now = performance.now();
+  const type = button.dataset.type;
 
-      if (type === 'correct') {
-        ensureAudio();
-        GAME.correctCount += 1;
-        handleComboOnCorrect(now);
-        const gained = 10 * getMultiplier(GAME.combo);
-        GAME.score += gained;
-        GAME.timeLeft += 2;
-        button.classList.add('correct-flash');
-        setFeedback(`Nice! +${gained}点 / Combo x${GAME.combo}`, 'good');
-        soundCorrect();
-        soundCombo(GAME.combo);
-      } else if (type === 'bomb') {
-        ensureAudio();
-        GAME.combo = 0;
-        GAME.comboDeadline = null;
-        GAME.score = Math.max(0, GAME.score - 20);
-        GAME.timeLeft = Math.max(0, GAME.timeLeft - 5);
-        button.classList.add('wrong-flash');
-        setFeedback('💣 Bomb! -20点 / -5秒', 'warn');
-        soundBomb();
-      } else {
-        ensureAudio();
-        GAME.combo = 0;
-        GAME.comboDeadline = null;
-        GAME.score = Math.max(0, GAME.score - 5);
-        GAME.timeLeft = Math.max(0, GAME.timeLeft - 3);
-        button.classList.add('wrong-flash');
-        setFeedback('Miss! -5点 / -3秒', 'bad');
-        soundWrong();
-      }
+  if (type === 'correct') {
+    GAME.questionLocked = true;
+    GAME.attemptCount += 1;
 
-      updateHud();
-      setTimeout(() => {
-        if (!GAME.running) return;
-        renderQuestion();
-      }, 220);
-    }
+    ensureAudio();
+    GAME.correctCount += 1;
+    handleComboOnCorrect(now);
+
+    const gained = 10 * getMultiplier(GAME.combo);
+    GAME.score += gained;
+    GAME.timeLeft += 2;
+
+    button.classList.add('correct-flash');
+    playCorrectEffect(button);
+    setFeedback(`Nice! +${gained}点 / Combo x${GAME.combo}`, 'good');
+    soundCorrect();
+    soundCombo(GAME.combo);
+
+    updateHud();
+
+    setTimeout(() => {
+      if (!GAME.running) return;
+      renderQuestion();
+    }, 420);
+
+  } else if (type === 'bomb') {
+    GAME.attemptCount += 1;
+
+    ensureAudio();
+    GAME.combo = 0;
+    GAME.comboDeadline = null;
+    showComboPopup(0);
+
+    GAME.score = Math.max(0, GAME.score - 20);
+    GAME.timeLeft = Math.max(0, GAME.timeLeft - 5);
+
+    button.classList.add('wrong-flash');
+    playWrongEffect(button);
+    setFeedback('💣 Bomb! -20点 / -5秒', 'warn');
+    soundBomb();
+
+    removeBalloon(button);
+    updateHud();
+
+  } else {
+    GAME.attemptCount += 1;
+
+    ensureAudio();
+    GAME.combo = 0;
+    GAME.comboDeadline = null;
+    showComboPopup(0);
+
+    GAME.score = Math.max(0, GAME.score - 5);
+    GAME.timeLeft = Math.max(0, GAME.timeLeft - 3);
+
+    button.classList.add('wrong-flash');
+    playWrongEffect(button);
+    setFeedback('Miss! -5点 / -3秒', 'bad');
+    soundWrong();
+
+    removeBalloon(button);
+    updateHud();
+  }
+}
 
     function tick() {
       if (!GAME.running) return;
@@ -874,6 +1122,7 @@
       if (GAME.comboDeadline && performance.now() > GAME.comboDeadline) {
         GAME.combo = 0;
         GAME.comboDeadline = null;
+        showComboPopup(0);
       }
 
       const countdownSecond = Math.ceil(GAME.timeLeft);
@@ -892,32 +1141,86 @@
       updateHud();
     }
 
-    function animateBalloons() {
-      if (!GAME.running) return;
-    }
+   function animateBalloons() {
+  if (!GAME.running) return;
+}
 
     function startGame() {
       ensureAudio();
       GAME.running = true;
       GAME.score = 0;
-      GAME.timeLeft = 60;
+      GAME.timeLeft = 30;
       GAME.combo = 0;
       GAME.maxCombo = 0;
       GAME.correctCount = 0;
       GAME.attemptCount = 0;
       GAME.comboDeadline = null;
       GAME.questionLocked = false;
+      GAME.lastCountdownBeepSecond = null;
+      showComboPopup(0);
+
       startOverlay.classList.add('hidden');
       resultOverlay.classList.add('hidden');
-      setFeedback('3秒以内の連続正解でコンボ継続', '');
+      setFeedback('5秒以内の連続正解でコンボ継続', '');
       renderQuestion();
       updateHud();
 
       clearInterval(GAME.tickTimer);
       cancelAnimationFrame(GAME.animTimer);
       GAME.tickTimer = setInterval(tick, 100);
-      
+      GAME.animTimer = requestAnimationFrame(animateBalloons);
     }
+    
+    function createBurstEffect(targetEl) {
+	  const rect = targetEl.getBoundingClientRect();
+	  const arenaRect = arena.getBoundingClientRect();
+
+	  const burst = document.createElement('div');
+	  burst.className = 'pop-burst';
+	  burst.style.left = '0';
+	  burst.style.top = '0';
+
+	  const cx = rect.left - arenaRect.left + rect.width / 2;
+	  const cy = rect.top - arenaRect.top + rect.height / 2;
+
+	  for (let i = 0; i < 10; i++) {
+	    const p = document.createElement('div');
+	    p.className = 'pop-particle';
+	    p.style.left = `${cx}px`;
+	    p.style.top = `${cy}px`;
+
+	    const angle = (Math.PI * 2 * i) / 10 + Math.random() * 0.35;
+	    const dist = 35 + Math.random() * 40;
+	    const dx = Math.cos(angle) * dist;
+	    const dy = Math.sin(angle) * dist;
+
+	    p.style.setProperty('--dx', `${dx}px`);
+	    p.style.setProperty('--dy', `${dy}px`);
+	    burst.appendChild(p);
+	  }
+
+	  arena.appendChild(burst);
+	  setTimeout(() => burst.remove(), 520);
+	}
+
+	function playCorrectEffect(button) {
+	  createBurstEffect(button);
+	  button.classList.add('pop-out');
+	}
+
+	function playWrongEffect(button) {
+	  button.classList.add('deflate-fall');
+	}
+
+function removeBalloon(button) {
+  GAME.balloons = GAME.balloons.filter(b => b.el !== button);
+
+  setTimeout(() => {
+    if (button && button.parentNode) {
+      button.remove();
+    }
+  }, 520);
+}
 
     function endGame() {
       ensureAudio();
@@ -925,6 +1228,7 @@
       clearInterval(GAME.tickTimer);
       cancelAnimationFrame(GAME.animTimer);
       GAME.comboDeadline = null;
+      showComboPopup(0);
       updateHud();
       questionText.textContent = '終了！';
       setFeedback('おつかれさま。結果を確認しよう。');
