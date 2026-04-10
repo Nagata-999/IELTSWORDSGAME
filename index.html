@@ -181,6 +181,14 @@
       box-shadow: 0 10px 20px rgba(244,63,94,0.25);
     }
 
+    .balloon.pop-out {
+      animation: popOut 0.22s ease-out forwards;
+    }
+
+    .balloon.deflate-fall {
+      animation: deflateFall 0.55s ease-in forwards;
+    }
+
     .bottom {
       padding: 12px;
       display: flex;
@@ -221,6 +229,8 @@
 
     .modal {
       width: min(100%, 420px);
+      max-height: 90dvh;
+      overflow-y: auto;
       padding: 20px;
       border-radius: 22px;
       background: rgba(15,23,42,0.88);
@@ -229,7 +239,7 @@
       text-align: center;
     }
 
-    .modal h1, .modal h2 {
+    .modal h1, .modal h2, .modal h3 {
       margin: 0 0 10px;
     }
 
@@ -288,10 +298,10 @@
       color: #fff8c5;
       -webkit-text-stroke: 2px rgba(120, 53, 15, 0.9);
       text-shadow:
-        0 0 10px rgba(255, 255, 255, 0.35),
-        0 0 24px rgba(250, 204, 21, 0.65),
-        0 6px 0 rgba(146, 64, 14, 0.95),
-        0 12px 18px rgba(0, 0, 0, 0.45);
+        0 0 10px rgba(255,255,255,0.35),
+        0 0 24px rgba(250,204,21,0.65),
+        0 6px 0 rgba(146,64,14,0.95),
+        0 12px 18px rgba(0,0,0,0.45);
       transition: opacity 0.15s ease, transform 0.15s ease;
     }
 
@@ -299,6 +309,89 @@
       opacity: 1;
       transform: translate(-50%, -50%) scale(1.15);
       animation: comboPop 0.32s ease;
+    }
+
+    .flash-effect {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(255,245,157,0.75) 30%, rgba(255,255,255,0) 70%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 18;
+    }
+
+    .flash-effect.active {
+      animation: flashAnim 0.28s ease;
+    }
+
+    .pop-burst {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    .pop-particle {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #ffffff 0%, #7dd3fc 55%, #38bdf8 100%);
+      opacity: 0.95;
+      animation: burstFly 0.5s ease-out forwards;
+    }
+
+    .ranking-box {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      text-align: left;
+    }
+
+    .ranking-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #fef08a;
+      text-align: center;
+    }
+
+    .ranking-row {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 14px;
+    }
+
+    .ranking-row:last-child {
+      border-bottom: none;
+    }
+
+    .ranking-rank {
+      font-weight: 900;
+      color: #93c5fd;
+    }
+
+    .ranking-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ranking-score {
+      font-weight: 900;
+      color: #f8fafc;
+    }
+
+    .ranking-empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 8px 0;
+      font-size: 14px;
     }
 
     @keyframes comboPop {
@@ -316,96 +409,57 @@
       }
     }
 
-    .flash-effect {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(255,245,157,0.75) 30%, rgba(255,255,255,0) 70%);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 18;
-    }
-
-    .flash-effect.active {
-      animation: flashAnim 0.28s ease;
-    }
-    
-    .pop-burst {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 25;
-}
-
-.pop-particle {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #7dd3fc 55%, #38bdf8 100%);
-  opacity: 0.95;
-  animation: burstFly 0.5s ease-out forwards;
-}
-
-@keyframes burstFly {
-  0% {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--dx), var(--dy)) scale(0.35);
-    opacity: 0;
-  }
-}
-
-	.balloon.pop-out {
-	  animation: popOut 0.22s ease-out forwards;
-	}
-
-	@keyframes popOut {
-	  0% {
-	    transform: scale(1);
-	    opacity: 1;
-	    filter: brightness(1.1);
-	  }
-	  60% {
-	    transform: scale(1.18);
-	    opacity: 1;
-	    filter: brightness(1.25);
-	  }
-	  100% {
-	    transform: scale(0.2);
-	    opacity: 0;
-	    filter: brightness(1.4);
-	  }
-	}
-
-	.balloon.deflate-fall {
-	  animation: deflateFall 0.55s ease-in forwards;
-	}
-
-	@keyframes deflateFall {
-	  0% {
-	    transform: scale(1, 1) translateY(0) rotate(0deg);
-	    opacity: 1;
-	  }
-	  25% {
-	    transform: scale(0.92, 1.02) translateY(4px) rotate(-4deg);
-	    opacity: 1;
-	  }
-	  55% {
-	    transform: scale(0.72, 1.06) translateY(26px) rotate(6deg);
-	    opacity: 0.9;
-	  }
-	  100% {
-	    transform: scale(0.48, 1.12) translateY(110px) rotate(12deg);
-	    opacity: 0;
-	  }
-	}
-
     @keyframes flashAnim {
       0% { opacity: 0.95; }
       100% { opacity: 0; }
+    }
+
+    @keyframes burstFly {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--dx), var(--dy)) scale(0.35);
+        opacity: 0;
+      }
+    }
+
+    @keyframes popOut {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1.1);
+      }
+      60% {
+        transform: scale(1.18);
+        opacity: 1;
+        filter: brightness(1.25);
+      }
+      100% {
+        transform: scale(0.2);
+        opacity: 0;
+        filter: brightness(1.4);
+      }
+    }
+
+    @keyframes deflateFall {
+      0% {
+        transform: scale(1, 1) translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      25% {
+        transform: scale(0.92, 1.02) translateY(4px) rotate(-4deg);
+        opacity: 1;
+      }
+      55% {
+        transform: scale(0.72, 1.06) translateY(26px) rotate(6deg);
+        opacity: 0.9;
+      }
+      100% {
+        transform: scale(0.48, 1.12) translateY(110px) rotate(12deg);
+        opacity: 0;
+      }
     }
 
     @media (max-width: 420px) {
@@ -421,6 +475,10 @@
       .combo-popup {
         font-size: 42px;
         -webkit-text-stroke: 1.5px rgba(120, 53, 15, 0.9);
+      }
+      .ranking-row {
+        grid-template-columns: 28px 1fr auto;
+        font-size: 13px;
       }
     }
   </style>
@@ -472,7 +530,7 @@
     <div class="overlay" id="startOverlay">
       <div class="modal">
         <h1>IELTS Speed Vocab</h1>
-        <p></p>
+        <p>英単語をすばやく見抜いて、高得点を狙おう。</p>
         <div style="margin-top:16px; display:flex; gap:10px;">
           <button class="btn primary" id="startOverlayBtn">ゲーム開始</button>
         </div>
@@ -500,7 +558,12 @@
             <div class="v" id="finalMaxCombo">0</div>
           </div>
         </div>
-    
+
+        <div id="rankingList" class="ranking-box">
+          <div class="ranking-title">🏆 Ranking</div>
+          <div class="ranking-empty">まだスコアがありません</div>
+        </div>
+
         <div style="margin-top:16px; display:flex; gap:10px;">
           <button class="btn primary" id="playAgainBtn">もう一回</button>
         </div>
@@ -508,7 +571,16 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+const SUPABASE_URL = "https://ykrjocftuflnkubaxrza.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_R3ff2RuU9WOU8pbj5SxvLg_R8ZW6EhPy";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
     let audioCtx = null;
 
     function ensureAudio() {
@@ -569,256 +641,256 @@
       setTimeout(() => playTone(784, 0.14, 'triangle', 0.045, 988), 180);
     }
 
-const words = [
-{ jp: "廃止する", en: "abolish" },
-{ jp: "曖昧さ", en: "ambiguity" },
-{ jp: "確かめる", en: "ascertain" },
-{ jp: "豊富な", en: "abundant" },
-{ jp: "伴う", en: "accompany" },
-{ jp: "蓄積する", en: "accumulate" },
-{ jp: "隣接した", en: "adjacent" },
-{ jp: "主張する", en: "advocate" },
-{ jp: "割り当てる", en: "allocate" },
-{ jp: "おおよその", en: "approximate" },
-{ jp: "任意の", en: "arbitrary" },
-{ jp: "生じる", en: "arise" },
-{ jp: "仮定", en: "assumption" },
-{ jp: "～のせいにする", en: "attribute" },
-{ jp: "偏り", en: "bias" },
-{ jp: "容量・能力", en: "capacity" },
-{ jp: "終わる", en: "cease" },
-{ jp: "一貫した", en: "coherent" },
-{ jp: "同時に起こる", en: "coincide" },
-{ jp: "まとめる", en: "compile" },
-{ jp: "補完する", en: "complement" },
-{ jp: "複雑さ", en: "complexity" },
-{ jp: "構成要素", en: "component" },
-{ jp: "構成される", en: "comprise" },
-{ jp: "思いつく", en: "conceive" },
-{ jp: "制限する", en: "confine" },
-{ jp: "論争", en: "controversy" },
-{ jp: "招集する", en: "convene" },
-{ jp: "逆の", en: "converse" },
-{ jp: "基準", en: "criteria" },
-{ jp: "重大な", en: "crucial" },
-{ jp: "累積した", en: "cumulative" },
-{ jp: "減少", en: "decline" },
-{ jp: "推測する", en: "deduce" },
-{ jp: "密度", en: "density" },
-{ jp: "引き出す", en: "derive" },
-{ jp: "逸脱する", en: "deviate" },
-{ jp: "個別の", en: "discrete" },
-{ jp: "取って代わる", en: "displace" },
-{ jp: "広める", en: "disseminate" },
-{ jp: "歪める", en: "distort" },
-{ jp: "期間", en: "duration" },
-{ jp: "実証的な", en: "empirical" },
-{ jp: "高める", en: "enhance" },
-{ jp: "莫大な", en: "enormous" },
-{ jp: "同等の", en: "equivalent" },
-{ jp: "徐々に失う", en: "erode" },
-{ jp: "確立する", en: "establish" },
-{ jp: "超える", en: "exceed" },
-{ jp: "さらされること", en: "exposure" },
-{ jp: "促進する", en: "facilitate" },
-{ jp: "変動する", en: "fluctuate" },
-{ jp: "枠組み", en: "framework" },
-{ jp: "基本的な", en: "fundamental" },
-{ jp: "生み出す", en: "generate" },
-{ jp: "仮説", en: "hypothesis" },
-{ jp: "同一の", en: "identical" },
-{ jp: "思想", en: "ideology" },
-{ jp: "含意", en: "implication" },
-{ jp: "課す", en: "impose" },
-{ jp: "動機", en: "incentive" },
-{ jp: "発生率", en: "incidence" },
-{ jp: "傾向がある", en: "incline" },
-{ jp: "引き起こす", en: "induce" },
-{ jp: "避けられない", en: "inevitable" },
-{ jp: "推測する", en: "infer" },
-{ jp: "初期の", en: "initial" },
-{ jp: "例", en: "instance" },
-{ jp: "統合する", en: "integrate" },
-{ jp: "介入する", en: "intervene" },
-{ jp: "分離する", en: "isolate" },
-{ jp: "層", en: "layer" },
-{ jp: "課税する", en: "levy" },
-{ jp: "同様に", en: "likewise" },
-{ jp: "維持する", en: "maintain" },
-{ jp: "差・余白", en: "margin" },
-{ jp: "移動する", en: "migrate" },
-{ jp: "方法", en: "mode" },
-{ jp: "修正する", en: "modify" },
-{ jp: "監視する", en: "monitor" },
-{ jp: "網状組織", en: "network" },
-{ jp: "概念", en: "notion" },
-{ jp: "目的", en: "objective" },
-{ jp: "得る", en: "obtain" },
-{ jp: "相殺する", en: "offset" },
-{ jp: "進行中の", en: "ongoing" },
-{ jp: "全体的な", en: "overall" },
-{ jp: "変数・範囲", en: "parameter" },
-{ jp: "持続する", en: "persist" },
-{ jp: "現象", en: "phenomenon" },
-{ jp: "一部", en: "portion" },
-{ jp: "引き起こす", en: "pose" },
-{ jp: "正確な", en: "precise" },
-{ jp: "予測する", en: "predict" },
-{ jp: "支配的な", en: "predominant" },
-{ jp: "予備の", en: "preliminary" },
-{ jp: "推定する", en: "presume" },
-{ jp: "前の", en: "previous" },
-{ jp: "主に", en: "primarily" },
-{ jp: "以前の", en: "prior" },
-{ jp: "禁止する", en: "prohibit" },
-{ jp: "重要な・著名な", en: "prominent" },
-{ jp: "割合", en: "proportion" },
-{ jp: "急進的な", en: "radical" },
-{ jp: "無作為の", en: "random" },
-{ jp: "範囲", en: "range" },
-{ jp: "比率", en: "ratio" },
-{ jp: "改良する", en: "refine" },
-{ jp: "体制", en: "regime" },
-{ jp: "強化する", en: "reinforce" },
-{ jp: "気が進まない", en: "reluctant" },
-{ jp: "取り除く", en: "remove" },
-{ jp: "必要とする", en: "require" },
-{ jp: "解決する", en: "resolve" },
-{ jp: "保持する", en: "retain" },
-{ jp: "明らかにする", en: "reveal" },
-{ jp: "逆転する", en: "reverse" },
-{ jp: "修正する", en: "revise" },
-{ jp: "予定", en: "schedule" },
-{ jp: "分野", en: "sector" },
-{ jp: "変化", en: "shift" },
-{ jp: "重要な", en: "significant" },
-{ jp: "模擬する", en: "simulate" },
-{ jp: "場所", en: "site" },
-{ jp: "いわゆる", en: "so-called" },
-{ jp: "いくぶん", en: "somewhat" },
-{ jp: "十分な", en: "sufficient" },
-{ jp: "その後の", en: "subsequent" },
-{ jp: "合計", en: "sum" },
-{ jp: "調査", en: "survey" },
-{ jp: "一時停止する", en: "suspend" },
-{ jp: "維持する", en: "sustain" },
-{ jp: "目標", en: "target" },
-{ jp: "技術的な", en: "technical" },
-{ jp: "一時的な", en: "temporary" },
-{ jp: "理論的な", en: "theoretical" },
-{ jp: "それによって", en: "thereby" },
-{ jp: "引き起こす", en: "trigger" },
-{ jp: "最終的な", en: "ultimate" },
-{ jp: "経験する", en: "undergo" },
-{ jp: "利用する", en: "utilize" },
-{ jp: "有効な", en: "valid" },
-{ jp: "～を通じて", en: "via" },
-{ jp: "量", en: "volume" },
-{ jp: "一方で", en: "whereas" },
-{ jp: "突然の", en: "abrupt" },
-{ jp: "抽象的な", en: "abstract" },
-{ jp: "加速する", en: "accelerate" },
-{ jp: "適応する・収容する", en: "accommodate" },
-{ jp: "合計の・集合した", en: "aggregate" },
-{ jp: "予期する", en: "anticipate" },
-{ jp: "明らかな", en: "apparent" },
-{ jp: "自動化する", en: "automate" },
-{ jp: "大部分", en: "bulk" },
-{ jp: "互換性のある", en: "compatible" },
-{ jp: "包括的な", en: "comprehensive" },
-{ jp: "論争の的の", en: "controversial" },
-{ jp: "劣化させる", en: "degrade" },
-{ jp: "示す", en: "denote" },
-{ jp: "発見する", en: "detect" },
-{ jp: "減少する", en: "diminish" },
-{ jp: "排除する", en: "eliminate" },
-{ jp: "施行する", en: "enforce" },
-{ jp: "明確な", en: "explicit" },
-{ jp: "活用する・搾取する", en: "exploit" },
-{ jp: "抽出する", en: "extract" },
-{ jp: "来たるべき", en: "forthcoming" },
-{ jp: "説明する", en: "illustrate" },
-{ jp: "最初は", en: "initially" },
-{ jp: "本質的な", en: "intrinsic" },
-{ jp: "不利な・有害な", en: "adverse" },
-{ jp: "～ではあるが", en: "albeit" },
-{ jp: "類似した", en: "analogous" },
-{ jp: "異常・例外", en: "anomaly" },
-{ jp: "装置", en: "apparatus" },
-{ jp: "かなりの", en: "appreciable" },
-{ jp: "～のせいにする", en: "ascribe" },
-{ jp: "同化する・吸収する", en: "assimilate" },
-{ jp: "弱める", en: "attenuate" },
-{ jp: "相応の", en: "commensurate" },
-{ jp: "与える", en: "confer" },
-{ jp: "矛盾する", en: "contradict" },
-{ jp: "詳述する", en: "delineate" },
-{ jp: "分岐する・逸脱する", en: "diverge" },
-{ jp: "均衡", en: "equilibrium" },
-{ jp: "悪化させる", en: "exacerbate" },
-{ jp: "実行可能な", en: "feasible" },
-{ jp: "体系化する", en: "formulate" },
-{ jp: "不可欠な", en: "integral" },
-{ jp: "引き起こす", en: "invoke" },
-{ jp: "わずかな", en: "marginal" },
-{ jp: "～にもかかわらず", en: "notwithstanding" },
-{ jp: "逆説", en: "paradox" },
-{ jp: "認識する", en: "perceive" },
-{ jp: "仮の", en: "tentative" },
-{ jp: "逸脱・異常", en: "aberration" },
-{ jp: "抽象概念", en: "abstraction" },
-{ jp: "蓄積する", en: "accrue" },
-{ jp: "出現", en: "advent" },
-{ jp: "一致", en: "alignment" },
-{ jp: "原型", en: "archetype" },
-{ jp: "非対称", en: "asymmetry" },
-{ jp: "自律した", en: "autonomous" },
-{ jp: "結束", en: "cohesion" },
-{ jp: "主張する", en: "contend" },
-{ jp: "～次第の", en: "contingent" },
-{ jp: "収束", en: "convergence" },
-{ jp: "相関", en: "correlation" },
-{ jp: "決定要因", en: "determinant" },
-{ jp: "拡散", en: "diffusion" },
-{ jp: "格差", en: "disparity" },
-{ jp: "特徴的な", en: "distinctive" },
-{ jp: "領域", en: "domain" },
-{ jp: "出現", en: "emergence" },
-{ jp: "固有の", en: "endemic" },
-{ jp: "進化の", en: "evolutionary" },
-{ jp: "指数関数的な", en: "exponential" },
-{ jp: "欠点", en: "flaw" },
-{ jp: "階層", en: "hierarchy" },
-{ jp: "仮説の", en: "hypothetical" },
-{ jp: "基盤", en: "infrastructure" },
-{ jp: "相互作用", en: "interplay" },
-{ jp: "可能性", en: "likelihood" },
-{ jp: "表れ", en: "manifestation" },
-{ jp: "仕組み", en: "mechanism" },
-{ jp: "理論枠組み", en: "paradigm" },
-{ jp: "周辺の", en: "peripheral" },
-{ jp: "優勢", en: "predominance" },
-{ jp: "見込み", en: "prospect" },
-{ jp: "手順", en: "protocol" },
-{ jp: "質的な", en: "qualitative" },
-{ jp: "量的な", en: "quantitative" },
-{ jp: "改良", en: "refinement" },
-{ jp: "規制", en: "regulation" },
-{ jp: "回復力", en: "resilience" },
-{ jp: "保持", en: "retention" },
-{ jp: "想定", en: "scenario" },
-{ jp: "安定", en: "stability" },
-{ jp: "従属する", en: "subordinate" },
-{ jp: "置換", en: "substitution" },
-{ jp: "連続する", en: "successive" },
-{ jp: "統合", en: "synthesis" },
-{ jp: "閾値", en: "threshold" },
-{ jp: "軌道・推移", en: "trajectory" },
-{ jp: "根底にある", en: "underlying" },
-{ jp: "妥当性", en: "validity" },
-{ jp: "変動", en: "variation" },
-{ jp: "広範囲の", en: "widespread" }
-];
+    const words = [
+      { jp: "廃止する", en: "abolish" },
+      { jp: "曖昧さ", en: "ambiguity" },
+      { jp: "確かめる", en: "ascertain" },
+      { jp: "豊富な", en: "abundant" },
+      { jp: "伴う", en: "accompany" },
+      { jp: "蓄積する", en: "accumulate" },
+      { jp: "隣接した", en: "adjacent" },
+      { jp: "主張する", en: "advocate" },
+      { jp: "割り当てる", en: "allocate" },
+      { jp: "おおよその", en: "approximate" },
+      { jp: "任意の", en: "arbitrary" },
+      { jp: "生じる", en: "arise" },
+      { jp: "仮定", en: "assumption" },
+      { jp: "～のせいにする", en: "attribute" },
+      { jp: "偏り", en: "bias" },
+      { jp: "容量・能力", en: "capacity" },
+      { jp: "終わる", en: "cease" },
+      { jp: "一貫した", en: "coherent" },
+      { jp: "同時に起こる", en: "coincide" },
+      { jp: "まとめる", en: "compile" },
+      { jp: "補完する", en: "complement" },
+      { jp: "複雑さ", en: "complexity" },
+      { jp: "構成要素", en: "component" },
+      { jp: "構成される", en: "comprise" },
+      { jp: "思いつく", en: "conceive" },
+      { jp: "制限する", en: "confine" },
+      { jp: "論争", en: "controversy" },
+      { jp: "招集する", en: "convene" },
+      { jp: "逆の", en: "converse" },
+      { jp: "基準", en: "criteria" },
+      { jp: "重大な", en: "crucial" },
+      { jp: "累積した", en: "cumulative" },
+      { jp: "減少", en: "decline" },
+      { jp: "推測する", en: "deduce" },
+      { jp: "密度", en: "density" },
+      { jp: "引き出す", en: "derive" },
+      { jp: "逸脱する", en: "deviate" },
+      { jp: "個別の", en: "discrete" },
+      { jp: "取って代わる", en: "displace" },
+      { jp: "広める", en: "disseminate" },
+      { jp: "歪める", en: "distort" },
+      { jp: "期間", en: "duration" },
+      { jp: "実証的な", en: "empirical" },
+      { jp: "高める", en: "enhance" },
+      { jp: "莫大な", en: "enormous" },
+      { jp: "同等の", en: "equivalent" },
+      { jp: "徐々に失う", en: "erode" },
+      { jp: "確立する", en: "establish" },
+      { jp: "超える", en: "exceed" },
+      { jp: "さらされること", en: "exposure" },
+      { jp: "促進する", en: "facilitate" },
+      { jp: "変動する", en: "fluctuate" },
+      { jp: "枠組み", en: "framework" },
+      { jp: "基本的な", en: "fundamental" },
+      { jp: "生み出す", en: "generate" },
+      { jp: "仮説", en: "hypothesis" },
+      { jp: "同一の", en: "identical" },
+      { jp: "思想", en: "ideology" },
+      { jp: "含意", en: "implication" },
+      { jp: "課す", en: "impose" },
+      { jp: "動機", en: "incentive" },
+      { jp: "発生率", en: "incidence" },
+      { jp: "傾向がある", en: "incline" },
+      { jp: "引き起こす", en: "induce" },
+      { jp: "避けられない", en: "inevitable" },
+      { jp: "推測する", en: "infer" },
+      { jp: "初期の", en: "initial" },
+      { jp: "例", en: "instance" },
+      { jp: "統合する", en: "integrate" },
+      { jp: "介入する", en: "intervene" },
+      { jp: "分離する", en: "isolate" },
+      { jp: "層", en: "layer" },
+      { jp: "課税する", en: "levy" },
+      { jp: "同様に", en: "likewise" },
+      { jp: "維持する", en: "maintain" },
+      { jp: "差・余白", en: "margin" },
+      { jp: "移動する", en: "migrate" },
+      { jp: "方法", en: "mode" },
+      { jp: "修正する", en: "modify" },
+      { jp: "監視する", en: "monitor" },
+      { jp: "網状組織", en: "network" },
+      { jp: "概念", en: "notion" },
+      { jp: "目的", en: "objective" },
+      { jp: "得る", en: "obtain" },
+      { jp: "相殺する", en: "offset" },
+      { jp: "進行中の", en: "ongoing" },
+      { jp: "全体的な", en: "overall" },
+      { jp: "変数・範囲", en: "parameter" },
+      { jp: "持続する", en: "persist" },
+      { jp: "現象", en: "phenomenon" },
+      { jp: "一部", en: "portion" },
+      { jp: "引き起こす", en: "pose" },
+      { jp: "正確な", en: "precise" },
+      { jp: "予測する", en: "predict" },
+      { jp: "支配的な", en: "predominant" },
+      { jp: "予備の", en: "preliminary" },
+      { jp: "推定する", en: "presume" },
+      { jp: "前の", en: "previous" },
+      { jp: "主に", en: "primarily" },
+      { jp: "以前の", en: "prior" },
+      { jp: "禁止する", en: "prohibit" },
+      { jp: "重要な・著名な", en: "prominent" },
+      { jp: "割合", en: "proportion" },
+      { jp: "急進的な", en: "radical" },
+      { jp: "無作為の", en: "random" },
+      { jp: "範囲", en: "range" },
+      { jp: "比率", en: "ratio" },
+      { jp: "改良する", en: "refine" },
+      { jp: "体制", en: "regime" },
+      { jp: "強化する", en: "reinforce" },
+      { jp: "気が進まない", en: "reluctant" },
+      { jp: "取り除く", en: "remove" },
+      { jp: "必要とする", en: "require" },
+      { jp: "解決する", en: "resolve" },
+      { jp: "保持する", en: "retain" },
+      { jp: "明らかにする", en: "reveal" },
+      { jp: "逆転する", en: "reverse" },
+      { jp: "修正する", en: "revise" },
+      { jp: "予定", en: "schedule" },
+      { jp: "分野", en: "sector" },
+      { jp: "変化", en: "shift" },
+      { jp: "重要な", en: "significant" },
+      { jp: "模擬する", en: "simulate" },
+      { jp: "場所", en: "site" },
+      { jp: "いわゆる", en: "so-called" },
+      { jp: "いくぶん", en: "somewhat" },
+      { jp: "十分な", en: "sufficient" },
+      { jp: "その後の", en: "subsequent" },
+      { jp: "合計", en: "sum" },
+      { jp: "調査", en: "survey" },
+      { jp: "一時停止する", en: "suspend" },
+      { jp: "維持する", en: "sustain" },
+      { jp: "目標", en: "target" },
+      { jp: "技術的な", en: "technical" },
+      { jp: "一時的な", en: "temporary" },
+      { jp: "理論的な", en: "theoretical" },
+      { jp: "それによって", en: "thereby" },
+      { jp: "引き起こす", en: "trigger" },
+      { jp: "最終的な", en: "ultimate" },
+      { jp: "経験する", en: "undergo" },
+      { jp: "利用する", en: "utilize" },
+      { jp: "有効な", en: "valid" },
+      { jp: "～を通じて", en: "via" },
+      { jp: "量", en: "volume" },
+      { jp: "一方で", en: "whereas" },
+      { jp: "突然の", en: "abrupt" },
+      { jp: "抽象的な", en: "abstract" },
+      { jp: "加速する", en: "accelerate" },
+      { jp: "適応する・収容する", en: "accommodate" },
+      { jp: "合計の・集合した", en: "aggregate" },
+      { jp: "予期する", en: "anticipate" },
+      { jp: "明らかな", en: "apparent" },
+      { jp: "自動化する", en: "automate" },
+      { jp: "大部分", en: "bulk" },
+      { jp: "互換性のある", en: "compatible" },
+      { jp: "包括的な", en: "comprehensive" },
+      { jp: "論争の的の", en: "controversial" },
+      { jp: "劣化させる", en: "degrade" },
+      { jp: "示す", en: "denote" },
+      { jp: "発見する", en: "detect" },
+      { jp: "減少する", en: "diminish" },
+      { jp: "排除する", en: "eliminate" },
+      { jp: "施行する", en: "enforce" },
+      { jp: "明確な", en: "explicit" },
+      { jp: "活用する・搾取する", en: "exploit" },
+      { jp: "抽出する", en: "extract" },
+      { jp: "来たるべき", en: "forthcoming" },
+      { jp: "説明する", en: "illustrate" },
+      { jp: "最初は", en: "initially" },
+      { jp: "本質的な", en: "intrinsic" },
+      { jp: "不利な・有害な", en: "adverse" },
+      { jp: "～ではあるが", en: "albeit" },
+      { jp: "類似した", en: "analogous" },
+      { jp: "異常・例外", en: "anomaly" },
+      { jp: "装置", en: "apparatus" },
+      { jp: "かなりの", en: "appreciable" },
+      { jp: "～のせいにする", en: "ascribe" },
+      { jp: "同化する・吸収する", en: "assimilate" },
+      { jp: "弱める", en: "attenuate" },
+      { jp: "相応の", en: "commensurate" },
+      { jp: "与える", en: "confer" },
+      { jp: "矛盾する", en: "contradict" },
+      { jp: "詳述する", en: "delineate" },
+      { jp: "分岐する・逸脱する", en: "diverge" },
+      { jp: "均衡", en: "equilibrium" },
+      { jp: "悪化させる", en: "exacerbate" },
+      { jp: "実行可能な", en: "feasible" },
+      { jp: "体系化する", en: "formulate" },
+      { jp: "不可欠な", en: "integral" },
+      { jp: "引き起こす", en: "invoke" },
+      { jp: "わずかな", en: "marginal" },
+      { jp: "～にもかかわらず", en: "notwithstanding" },
+      { jp: "逆説", en: "paradox" },
+      { jp: "認識する", en: "perceive" },
+      { jp: "仮の", en: "tentative" },
+      { jp: "逸脱・異常", en: "aberration" },
+      { jp: "抽象概念", en: "abstraction" },
+      { jp: "蓄積する", en: "accrue" },
+      { jp: "出現", en: "advent" },
+      { jp: "一致", en: "alignment" },
+      { jp: "原型", en: "archetype" },
+      { jp: "非対称", en: "asymmetry" },
+      { jp: "自律した", en: "autonomous" },
+      { jp: "結束", en: "cohesion" },
+      { jp: "主張する", en: "contend" },
+      { jp: "～次第の", en: "contingent" },
+      { jp: "収束", en: "convergence" },
+      { jp: "相関", en: "correlation" },
+      { jp: "決定要因", en: "determinant" },
+      { jp: "拡散", en: "diffusion" },
+      { jp: "格差", en: "disparity" },
+      { jp: "特徴的な", en: "distinctive" },
+      { jp: "領域", en: "domain" },
+      { jp: "出現", en: "emergence" },
+      { jp: "固有の", en: "endemic" },
+      { jp: "進化の", en: "evolutionary" },
+      { jp: "指数関数的な", en: "exponential" },
+      { jp: "欠点", en: "flaw" },
+      { jp: "階層", en: "hierarchy" },
+      { jp: "仮説の", en: "hypothetical" },
+      { jp: "基盤", en: "infrastructure" },
+      { jp: "相互作用", en: "interplay" },
+      { jp: "可能性", en: "likelihood" },
+      { jp: "表れ", en: "manifestation" },
+      { jp: "仕組み", en: "mechanism" },
+      { jp: "理論枠組み", en: "paradigm" },
+      { jp: "周辺の", en: "peripheral" },
+      { jp: "優勢", en: "predominance" },
+      { jp: "見込み", en: "prospect" },
+      { jp: "手順", en: "protocol" },
+      { jp: "質的な", en: "qualitative" },
+      { jp: "量的な", en: "quantitative" },
+      { jp: "改良", en: "refinement" },
+      { jp: "規制", en: "regulation" },
+      { jp: "回復力", en: "resilience" },
+      { jp: "保持", en: "retention" },
+      { jp: "想定", en: "scenario" },
+      { jp: "安定", en: "stability" },
+      { jp: "従属する", en: "subordinate" },
+      { jp: "置換", en: "substitution" },
+      { jp: "連続する", en: "successive" },
+      { jp: "統合", en: "synthesis" },
+      { jp: "閾値", en: "threshold" },
+      { jp: "軌道・推移", en: "trajectory" },
+      { jp: "根底にある", en: "underlying" },
+      { jp: "妥当性", en: "validity" },
+      { jp: "変動", en: "variation" },
+      { jp: "広範囲の", en: "widespread" }
+    ];
 
     const scoreValue = document.getElementById('scoreValue');
     const timeValue = document.getElementById('timeValue');
@@ -842,6 +914,7 @@ const words = [
 
     const comboPopup = document.getElementById('comboPopup');
     const flashEffect = document.getElementById('flashEffect');
+    const rankingList = document.getElementById('rankingList');
 
     const GAME = {
       lastCountdownBeepSecond: null,
@@ -857,7 +930,8 @@ const words = [
       questionLocked: false,
       tickTimer: null,
       animTimer: null,
-      balloons: []
+      balloons: [],
+      scoreSavedThisRound: false
     };
 
     function shuffle(arr) {
@@ -926,89 +1000,139 @@ const words = [
       flashEffect.classList.add('active');
     }
 
-function createBalloon(text, type, index, total) {
-  const btn = document.createElement('button');
-  btn.className = `balloon ${type === 'bomb' ? 'bomb' : ''}`;
-  btn.textContent = type === 'bomb' ? '💣' : text;
-  btn.dataset.type = type;
-  btn.dataset.value = text;
+    function createBurstEffect(targetEl) {
+      const rect = targetEl.getBoundingClientRect();
+      const arenaRect = arena.getBoundingClientRect();
 
-  arena.appendChild(btn);
+      const burst = document.createElement('div');
+      burst.className = 'pop-burst';
 
-  const arenaRect = arena.getBoundingClientRect();
-  const btnRect = btn.getBoundingClientRect();
-  const padding = 12;
-  const gap = 14;
-  const balloonW = Math.ceil(btnRect.width);
-  const balloonH = Math.ceil(btnRect.height);
+      const cx = rect.left - arenaRect.left + rect.width / 2;
+      const cy = rect.top - arenaRect.top + rect.height / 2;
 
-  const cols = 2;
-  const rows = Math.ceil(total / cols);
-  const col = index % cols;
-  const row = Math.floor(index / cols);
-  const cellW = arenaRect.width / cols;
-  const cellH = arenaRect.height / Math.max(rows, 3);
+      for (let i = 0; i < 10; i++) {
+        const p = document.createElement('div');
+        p.className = 'pop-particle';
+        p.style.left = `${cx}px`;
+        p.style.top = `${cy}px`;
 
-  let minX = Math.max(padding, col * cellW + 6);
-  let maxX = Math.min(
-    arenaRect.width - balloonW - padding,
-    (col + 1) * cellW - balloonW - 6
-  );
-  let minY = Math.max(padding, row * cellH + 6);
-  let maxY = Math.min(
-    arenaRect.height - balloonH - padding,
-    (row + 1) * cellH - balloonH - 6
-  );
+        const angle = (Math.PI * 2 * i) / 10 + Math.random() * 0.35;
+        const dist = 35 + Math.random() * 40;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
 
-  if (maxX < minX) {
-    minX = Math.max(padding, Math.min(minX, arenaRect.width - balloonW - padding));
-    maxX = minX;
-  }
-  if (maxY < minY) {
-    minY = Math.max(padding, Math.min(minY, arenaRect.height - balloonH - padding));
-    maxY = minY;
-  }
+        p.style.setProperty('--dx', `${dx}px`);
+        p.style.setProperty('--dy', `${dy}px`);
+        burst.appendChild(p);
+      }
 
-  let x = minX;
-  let y = minY;
-  let placed = false;
-
-  for (let attempt = 0; attempt < 60; attempt++) {
-    const testX = minX + Math.random() * Math.max(0, maxX - minX);
-    const testY = minY + Math.random() * Math.max(0, maxY - minY);
-
-    const overlaps = GAME.balloons.some(b => {
-      return !(
-        testX + balloonW + gap < b.x ||
-        testX > b.x + b.w + gap ||
-        testY + balloonH + gap < b.y ||
-        testY > b.y + b.h + gap
-      );
-    });
-
-    if (!overlaps) {
-      x = testX;
-      y = testY;
-      placed = true;
-      break;
+      arena.appendChild(burst);
+      setTimeout(() => burst.remove(), 520);
     }
-  }
 
-  if (!placed) {
-    const fallbackX = col * cellW + (cellW - balloonW) / 2;
-    const fallbackY = row * cellH + (cellH - balloonH) / 2;
-    x = Math.max(padding, Math.min(arenaRect.width - balloonW - padding, fallbackX));
-    y = Math.max(padding, Math.min(arenaRect.height - balloonH - padding, fallbackY));
-  }
+    function playCorrectEffect(button) {
+      createBurstEffect(button);
+      button.classList.add('pop-out');
+    }
 
-  btn.style.left = `${x}px`;
-  btn.style.top = `${y}px`;
+    function playWrongEffect(button) {
+      button.classList.add('deflate-fall');
+    }
 
-  const balloonObj = { el: btn, x, y, vx: 0, vy: 0, w: balloonW, h: balloonH };
-  GAME.balloons.push(balloonObj);
+    function removeBalloon(button) {
+      GAME.balloons = GAME.balloons.filter(b => b.el !== button);
 
-  btn.addEventListener('click', () => handleTap(btn));
-}
+      setTimeout(() => {
+        if (button && button.parentNode) {
+          button.remove();
+        }
+      }, 520);
+    }
+
+    function createBalloon(text, type, index, total) {
+      const btn = document.createElement('button');
+      btn.className = `balloon ${type === 'bomb' ? 'bomb' : ''}`;
+      btn.textContent = type === 'bomb' ? '💣' : text;
+      btn.dataset.type = type;
+      btn.dataset.value = text;
+
+      arena.appendChild(btn);
+
+      const arenaRect = arena.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      const padding = 12;
+      const gap = 14;
+      const balloonW = Math.ceil(btnRect.width);
+      const balloonH = Math.ceil(btnRect.height);
+
+      const cols = 2;
+      const rows = Math.ceil(total / cols);
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      const cellW = arenaRect.width / cols;
+      const cellH = arenaRect.height / Math.max(rows, 3);
+
+      let minX = Math.max(padding, col * cellW + 6);
+      let maxX = Math.min(
+        arenaRect.width - balloonW - padding,
+        (col + 1) * cellW - balloonW - 6
+      );
+      let minY = Math.max(padding, row * cellH + 6);
+      let maxY = Math.min(
+        arenaRect.height - balloonH - padding,
+        (row + 1) * cellH - balloonH - 6
+      );
+
+      if (maxX < minX) {
+        minX = Math.max(padding, Math.min(minX, arenaRect.width - balloonW - padding));
+        maxX = minX;
+      }
+      if (maxY < minY) {
+        minY = Math.max(padding, Math.min(minY, arenaRect.height - balloonH - padding));
+        maxY = minY;
+      }
+
+      let x = minX;
+      let y = minY;
+      let placed = false;
+
+      for (let attempt = 0; attempt < 60; attempt++) {
+        const testX = minX + Math.random() * Math.max(0, maxX - minX);
+        const testY = minY + Math.random() * Math.max(0, maxY - minY);
+
+        const overlaps = GAME.balloons.some(b => {
+          return !(
+            testX + balloonW + gap < b.x ||
+            testX > b.x + b.w + gap ||
+            testY + balloonH + gap < b.y ||
+            testY > b.y + b.h + gap
+          );
+        });
+
+        if (!overlaps) {
+          x = testX;
+          y = testY;
+          placed = true;
+          break;
+        }
+      }
+
+      if (!placed) {
+        const fallbackX = col * cellW + (cellW - balloonW) / 2;
+        const fallbackY = row * cellH + (cellH - balloonH) / 2;
+        x = Math.max(padding, Math.min(arenaRect.width - balloonW - padding, fallbackX));
+        y = Math.max(padding, Math.min(arenaRect.height - balloonH - padding, fallbackY));
+      }
+
+      btn.style.left = `${x}px`;
+      btn.style.top = `${y}px`;
+
+      const balloonObj = { el: btn, x, y, vx: 0, vy: 0, w: balloonW, h: balloonH };
+      GAME.balloons.push(balloonObj);
+
+      btn.addEventListener('click', () => handleTap(btn));
+    }
+
     function renderQuestion() {
       clearArena();
       GAME.currentQuestion = pickQuestion();
@@ -1044,75 +1168,75 @@ function createBalloon(text, type, index, total) {
     }
 
     function handleTap(button) {
-  if (!GAME.running || GAME.questionLocked) return;
+      if (!GAME.running || GAME.questionLocked) return;
 
-  const now = performance.now();
-  const type = button.dataset.type;
+      const now = performance.now();
+      const type = button.dataset.type;
 
-  if (type === 'correct') {
-    GAME.questionLocked = true;
-    GAME.attemptCount += 1;
+      if (type === 'correct') {
+        GAME.questionLocked = true;
+        GAME.attemptCount += 1;
 
-    ensureAudio();
-    GAME.correctCount += 1;
-    handleComboOnCorrect(now);
+        ensureAudio();
+        GAME.correctCount += 1;
+        handleComboOnCorrect(now);
 
-    const gained = 10 * getMultiplier(GAME.combo);
-    GAME.score += gained;
-    GAME.timeLeft += 2;
+        const gained = 10 * getMultiplier(GAME.combo);
+        GAME.score += gained;
+        GAME.timeLeft += 2;
 
-    button.classList.add('correct-flash');
-    playCorrectEffect(button);
-    setFeedback(`Nice! +${gained}点 / Combo x${GAME.combo}`, 'good');
-    soundCorrect();
-    soundCombo(GAME.combo);
+        button.classList.add('correct-flash');
+        playCorrectEffect(button);
+        setFeedback(`Nice! +${gained}点 / Combo x${GAME.combo}`, 'good');
+        soundCorrect();
+        soundCombo(GAME.combo);
 
-    updateHud();
+        updateHud();
 
-    setTimeout(() => {
-      if (!GAME.running) return;
-      renderQuestion();
-    }, 420);
+        setTimeout(() => {
+          if (!GAME.running) return;
+          renderQuestion();
+        }, 420);
 
-  } else if (type === 'bomb') {
-    GAME.attemptCount += 1;
+      } else if (type === 'bomb') {
+        GAME.attemptCount += 1;
 
-    ensureAudio();
-    GAME.combo = 0;
-    GAME.comboDeadline = null;
-    showComboPopup(0);
+        ensureAudio();
+        GAME.combo = 0;
+        GAME.comboDeadline = null;
+        showComboPopup(0);
 
-    GAME.score = Math.max(0, GAME.score - 20);
-    GAME.timeLeft = Math.max(0, GAME.timeLeft - 5);
+        GAME.score = Math.max(0, GAME.score - 20);
+        GAME.timeLeft = Math.max(0, GAME.timeLeft - 5);
 
-    button.classList.add('wrong-flash');
-    playWrongEffect(button);
-    setFeedback('💣 Bomb! -20点 / -5秒', 'warn');
-    soundBomb();
+        button.classList.add('wrong-flash');
+        playWrongEffect(button);
+        setFeedback('💣 Bomb! -20点 / -5秒', 'warn');
+        soundBomb();
 
-    removeBalloon(button);
-    updateHud();
+        removeBalloon(button);
+        updateHud();
 
-  } else {
-    GAME.attemptCount += 1;
+      } else {
+        GAME.attemptCount += 1;
 
-    ensureAudio();
-    GAME.combo = 0;
-    GAME.comboDeadline = null;
-    showComboPopup(0);
+        ensureAudio();
+        GAME.combo = 0;
+        GAME.comboDeadline = null;
+        showComboPopup(0);
 
-    GAME.score = Math.max(0, GAME.score - 5);
-    GAME.timeLeft = Math.max(0, GAME.timeLeft - 3);
+        GAME.score = Math.max(0, GAME.score - 5);
+        GAME.timeLeft = Math.max(0, GAME.timeLeft - 3);
 
-    button.classList.add('wrong-flash');
-    playWrongEffect(button);
-    setFeedback('Miss! -5点 / -3秒', 'bad');
-    soundWrong();
+        button.classList.add('wrong-flash');
+        playWrongEffect(button);
+        setFeedback('Miss! -5点 / -3秒', 'bad');
+        soundWrong();
 
-    removeBalloon(button);
-    updateHud();
-  }
-}
+        removeBalloon(button);
+        updateHud();
+      }
+    }
 
     function tick() {
       if (!GAME.running) return;
@@ -1141,9 +1265,9 @@ function createBalloon(text, type, index, total) {
       updateHud();
     }
 
-   function animateBalloons() {
-  if (!GAME.running) return;
-}
+    function animateBalloons() {
+      if (!GAME.running) return;
+    }
 
     function startGame() {
       ensureAudio();
@@ -1157,6 +1281,7 @@ function createBalloon(text, type, index, total) {
       GAME.comboDeadline = null;
       GAME.questionLocked = false;
       GAME.lastCountdownBeepSecond = null;
+      GAME.scoreSavedThisRound = false;
       showComboPopup(0);
 
       startOverlay.classList.add('hidden');
@@ -1170,59 +1295,88 @@ function createBalloon(text, type, index, total) {
       GAME.tickTimer = setInterval(tick, 100);
       GAME.animTimer = requestAnimationFrame(animateBalloons);
     }
-    
-    function createBurstEffect(targetEl) {
-	  const rect = targetEl.getBoundingClientRect();
-	  const arenaRect = arena.getBoundingClientRect();
 
-	  const burst = document.createElement('div');
-	  burst.className = 'pop-burst';
-	  burst.style.left = '0';
-	  burst.style.top = '0';
+    function renderRanking(data) {
+      if (!rankingList) return;
 
-	  const cx = rect.left - arenaRect.left + rect.width / 2;
-	  const cy = rect.top - arenaRect.top + rect.height / 2;
+      const title = `<div class="ranking-title">🏆 Ranking</div>`;
 
-	  for (let i = 0; i < 10; i++) {
-	    const p = document.createElement('div');
-	    p.className = 'pop-particle';
-	    p.style.left = `${cx}px`;
-	    p.style.top = `${cy}px`;
+      if (!data || data.length === 0) {
+        rankingList.innerHTML = title + `<div class="ranking-empty">まだスコアがありません</div>`;
+        return;
+      }
 
-	    const angle = (Math.PI * 2 * i) / 10 + Math.random() * 0.35;
-	    const dist = 35 + Math.random() * 40;
-	    const dx = Math.cos(angle) * dist;
-	    const dy = Math.sin(angle) * dist;
+      const rows = data.map((d, i) => `
+        <div class="ranking-row">
+          <div class="ranking-rank">${i + 1}.</div>
+          <div class="ranking-name">${escapeHtml(d.player_name || "NO NAME")}</div>
+          <div class="ranking-score">${Number(d.score ?? 0)}</div>
+        </div>
+      `).join("");
 
-	    p.style.setProperty('--dx', `${dx}px`);
-	    p.style.setProperty('--dy', `${dy}px`);
-	    burst.appendChild(p);
-	  }
-
-	  arena.appendChild(burst);
-	  setTimeout(() => burst.remove(), 520);
-	}
-
-	function playCorrectEffect(button) {
-	  createBurstEffect(button);
-	  button.classList.add('pop-out');
-	}
-
-	function playWrongEffect(button) {
-	  button.classList.add('deflate-fall');
-	}
-
-function removeBalloon(button) {
-  GAME.balloons = GAME.balloons.filter(b => b.el !== button);
-
-  setTimeout(() => {
-    if (button && button.parentNode) {
-      button.remove();
+      rankingList.innerHTML = title + rows;
     }
-  }, 520);
-}
 
-    function endGame() {
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function saveScore(finalScoreValue, accuracy) {
+      if (!supabaseClient || GAME.scoreSavedThisRound) return;
+
+      const input = prompt("名前を入力してください", localStorage.getItem("ielts_vocab_name") || "");
+      if (input === null) {
+        await loadRanking();
+        return;
+      }
+
+      const playerName = (input.trim() || "NO NAME").slice(0, 20);
+      localStorage.setItem("ielts_vocab_name", playerName);
+
+      const { error } = await supabaseClient
+        .from("scores")
+        .insert([{
+          player_name: playerName,
+          score: finalScoreValue,
+          max_combo: GAME.maxCombo,
+          accuracy: accuracy
+        }]);
+
+      if (error) {
+        console.error("save error:", error);
+      } else {
+        GAME.scoreSavedThisRound = true;
+      }
+    }
+
+    async function loadRanking() {
+      if (!supabaseClient) {
+        renderRanking([]);
+        return;
+      }
+
+      const { data, error } = await supabaseClient
+        .from("scores")
+        .select("player_name, score")
+        .order("score", { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error("ranking load error:", error);
+        renderRanking([]);
+        return;
+      }
+
+      renderRanking(data);
+    }
+
+    async function endGame() {
+    
       ensureAudio();
       GAME.running = false;
       clearInterval(GAME.tickTimer);
@@ -1234,14 +1388,21 @@ function removeBalloon(button) {
       setFeedback('おつかれさま。結果を確認しよう。');
       soundGameOver();
 
-      const accuracy = GAME.attemptCount ? Math.round((GAME.correctCount / GAME.attemptCount) * 100) : 0;
-      const bonusScore = GAME.score + GAME.maxCombo * 5 + Math.round(GAME.timeLeft) * 2;
+      const accuracy = GAME.attemptCount
+        ? Math.round((GAME.correctCount / GAME.attemptCount) * 100)
+        : 0;
+      const bonusScore = Math.round(
+        GAME.score + GAME.maxCombo * 5 + Math.round(GAME.timeLeft) * 2
+      );
 
-      finalScore.textContent = Math.round(bonusScore);
+      finalScore.textContent = bonusScore;
       finalAccuracy.textContent = `${accuracy}%`;
       finalCorrect.textContent = GAME.correctCount;
       finalMaxCombo.textContent = GAME.maxCombo;
       resultOverlay.classList.remove('hidden');
+
+      await saveScore(bonusScore, accuracy);
+      await loadRanking();
     }
 
     startBtn.addEventListener('click', startGame);
@@ -1254,6 +1415,8 @@ function removeBalloon(button) {
         renderQuestion();
       }
     });
+
+    loadRanking();
   </script>
 </body>
 </html>
