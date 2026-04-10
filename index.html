@@ -574,7 +574,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
 const SUPABASE_URL = "https://ykrjocftuflnkubaxrza.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_R3ff2RuU9WOU8pbj5SxvLg_R8ZW6EhPy";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_R3ff2RuU9WOU8pbj5SxvLg_R8ZW6EhP";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
@@ -1326,33 +1326,36 @@ const supabaseClient = supabase.createClient(
         .replaceAll("'", "&#039;");
     }
 
-    async function saveScore(finalScoreValue, accuracy) {
-      if (!supabaseClient || GAME.scoreSavedThisRound) return;
+async function saveScore(finalScoreValue, accuracy) {
+  if (!supabaseClient || GAME.scoreSavedThisRound) return;
 
-      const input = prompt("名前を入力してください", localStorage.getItem("ielts_vocab_name") || "");
-      if (input === null) {
-        await loadRanking();
-        return;
-      }
+  const input = prompt("名前を入力してください", localStorage.getItem("ielts_vocab_name") || "");
+  if (input === null) {
+    await loadRanking();
+    return;
+  }
 
-      const playerName = (input.trim() || "NO NAME").slice(0, 20);
-      localStorage.setItem("ielts_vocab_name", playerName);
+  const playerName = (input.trim() || "NO NAME").slice(0, 20);
+  localStorage.setItem("ielts_vocab_name", playerName);
 
-      const { error } = await supabaseClient
-        .from("scores")
-        .insert([{
-          player_name: playerName,
-          score: finalScoreValue,
-          max_combo: GAME.maxCombo,
-          accuracy: accuracy
-        }]);
+  const { data, error } = await supabaseClient.rpc("save_high_score", {
+    p_player_name: playerName,
+    p_score: finalScoreValue,
+    p_max_combo: GAME.maxCombo,
+    p_accuracy: accuracy
+  });
 
-      if (error) {
-        console.error("save error:", error);
-      } else {
-        GAME.scoreSavedThisRound = true;
-      }
-    }
+  console.log("save_high_score data:", data);
+  console.log("save_high_score error:", error);
+
+  if (error) {
+    alert("save error: " + error.message);
+    console.error("save error:", error);
+  } else {
+    GAME.scoreSavedThisRound = true;
+    console.log("save success");
+  }
+}
 
     async function loadRanking() {
       if (!supabaseClient) {
