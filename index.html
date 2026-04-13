@@ -3,16 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>IELTSの英単語　英コミュ</title>
+  <title>IELTS / シス単 Speed Vocab Game</title>
   <style>
     :root {
       --bg1: #0f172a;
       --bg2: #1e293b;
       --panel: rgba(255,255,255,0.10);
-      --panel-strong: rgba(255,255,255,0.16);
       --text: #f8fafc;
       --muted: #cbd5e1;
-      --accent: #38bdf8;
       --good: #22c55e;
       --bad: #ef4444;
       --warn: #f59e0b;
@@ -62,7 +60,7 @@
     .topbar {
       padding: 12px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
     }
 
@@ -99,6 +97,18 @@
     .combo-value {
       color: #fef08a;
       font-weight: 700;
+    }
+
+    .mode-badge {
+      display: inline-block;
+      min-width: 64px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      color: #082f49;
+      background: linear-gradient(180deg, #e0f2fe 0%, #7dd3fc 100%);
     }
 
     .question-card {
@@ -213,6 +223,22 @@
 
     .btn.secondary {
       background: linear-gradient(180deg, #475569 0%, #334155 100%);
+    }
+
+    .btn.green {
+      background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+    }
+
+    .btn.gold {
+      background: linear-gradient(180deg, #eab308 0%, #ca8a04 100%);
+      color: #1f2937;
+    }
+
+    .menu-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
     }
 
     .overlay {
@@ -357,6 +383,28 @@
       text-align: center;
     }
 
+    .ranking-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .ranking-tab {
+      flex: 1;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 8px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .ranking-tab.active {
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+    }
+
     .ranking-row {
       display: grid;
       grid-template-columns: 34px 1fr auto;
@@ -392,6 +440,14 @@
       color: var(--muted);
       padding: 8px 0;
       font-size: 14px;
+    }
+
+    .status-line {
+      margin-top: 8px;
+      min-height: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
     }
 
     @keyframes comboPop {
@@ -464,6 +520,7 @@
 
     @media (max-width: 420px) {
       .app { padding: 10px; gap: 8px; }
+      .topbar { grid-template-columns: repeat(2, 1fr); }
       .balloon {
         font-size: 18px;
         padding: 16px 18px;
@@ -486,6 +543,12 @@
 <body>
   <div class="app">
     <div class="panel topbar">
+      <div>
+        <div class="stat">
+          <div class="stat-label">Mode</div>
+          <div class="stat-value" style="font-size:18px;"><span class="mode-badge" id="modeBadge">IELTS</span></div>
+        </div>
+      </div>
       <div>
         <div class="stat">
           <div class="stat-label">Score</div>
@@ -515,7 +578,7 @@
       <div class="question-text" id="questionText">準備OK？</div>
     </div>
 
-    <div class="feedback" id="feedbackText">Start を押してスタート</div>
+    <div class="feedback" id="feedbackText">モードを選んでスタート</div>
 
     <div class="panel arena" id="arena"></div>
 
@@ -523,16 +586,37 @@
     <div id="comboPopup" class="combo-popup">2 COMBO!</div>
 
     <div class="panel bottom">
-      <button class="btn primary" id="startBtn">Start</button>
+      <button class="btn primary" id="menuBtn">Menu</button>
       <button class="btn secondary" id="retryBtn">Retry</button>
     </div>
 
-    <div class="overlay" id="startOverlay">
+    <div class="overlay" id="menuOverlay">
       <div class="modal">
-        <h1>IELTS Speed Vocab</h1>
-        <p>高ランクは平常点↑↑　やすし超えは商品。</p>
+        <h1>やすし英単語</h1>
+        <p>スコア200以上で平常点↑↑、やすし超えは賞品あり</p>
+        <div class="menu-btns">
+          <button class="btn primary" id="startIeltsBtn">IELTS モード開始</button>
+          <button class="btn green" id="startSystanBtn">シス単モード開始</button>
+          <button class="btn gold" id="openRankingBtn">ランキング確認</button>
+        </div>
+        <p class="small" style="margin-top:12px;">同じ名前なら、そのモード内でハイスコアだけ残します。</p>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="rankingOverlay">
+      <div class="modal">
+        <h2>Ranking</h2>
+        <div class="ranking-tabs">
+          <button class="ranking-tab active" id="rankingTabIelts">IELTS</button>
+          <button class="ranking-tab" id="rankingTabSystan">シス単</button>
+        </div>
+        <div id="rankingScreenList" class="ranking-box">
+          <div class="ranking-title">🏆 Ranking</div>
+          <div class="ranking-empty">読み込み中...</div>
+        </div>
+        <div class="status-line" id="rankingStatus"></div>
         <div style="margin-top:16px; display:flex; gap:10px;">
-          <button class="btn primary" id="startOverlayBtn">ゲーム開始</button>
+          <button class="btn secondary" id="closeRankingBtn">戻る</button>
         </div>
       </div>
     </div>
@@ -564,8 +648,11 @@
           <div class="ranking-empty">まだスコアがありません</div>
         </div>
 
+        <div class="status-line" id="saveStatus"></div>
+
         <div style="margin-top:16px; display:flex; gap:10px;">
           <button class="btn primary" id="playAgainBtn">もう一回</button>
+          <button class="btn secondary" id="backToMenuBtn">Menu</button>
         </div>
       </div>
     </div>
@@ -573,15 +660,690 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-const SUPABASE_URL = "https://ykrjocftuflnkubaxrza.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_R3ff2RuU9WOU8pbj5SxvLg_R8ZW6EhP";
+    const SUPABASE_URL = "https://ykrjocftuflnkubaxrza.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_R3ff2RuU9WOU8pbj5SxvLg_R8ZW6EhP";
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
 
     let audioCtx = null;
+    let currentMode = "ielts";
+    let rankingMode = "ielts";
+
+    const IELTS_WORDS = [
+{ jp: "廃止（はいし）する", en: "abolish" },
+{ jp: "曖昧（あいまい）さ", en: "ambiguity" },
+{ jp: "確かめる（たしかめる）", en: "ascertain" },
+{ jp: "豊富（ほうふ）な", en: "abundant" },
+{ jp: "伴う（ともなう）", en: "accompany" },
+{ jp: "蓄積（ちくせき）する", en: "accumulate" },
+{ jp: "隣接（りんせつ）した", en: "adjacent" },
+{ jp: "主張（しゅちょう）する", en: "advocate" },
+{ jp: "割り当てる（わりあてる）", en: "allocate" },
+{ jp: "おおよその", en: "approximate" },
+{ jp: "任意（にんい）の", en: "arbitrary" },
+{ jp: "生じる（しょうじる）", en: "arise" },
+{ jp: "仮定（かてい）", en: "assumption" },
+{ jp: "偏り（かたより）", en: "bias" },
+{ jp: "容量（ようりょう）・能力（のうりょく）", en: "capacity" },
+{ jp: "終わる（おわる）", en: "cease" },
+{ jp: "一貫（いっかん）した", en: "coherent" },
+{ jp: "まとめる", en: "compile" },
+{ jp: "複雑（ふくざつ）さ", en: "complexity" },
+{ jp: "構成要素（こうせいようそ）", en: "component" },
+{ jp: "制限（せいげん）する", en: "confine" },
+{ jp: "論争（ろんそう）", en: "controversy" },
+{ jp: "重大（じゅうだい）な", en: "crucial" },
+{ jp: "密度（みつど）", en: "density" },
+{ jp: "引き出す（ひきだす）", en: "derive" },
+{ jp: "逸脱（いつだつ）する", en: "deviate" },
+{ jp: "広める（ひろめる）", en: "disseminate" },
+{ jp: "歪める（ゆがめる）", en: "distort" },
+{ jp: "期間（きかん）", en: "duration" },
+{ jp: "実証的（じっしょうてき）な", en: "empirical" },
+{ jp: "高める（たかめる）", en: "enhance" },
+{ jp: "莫大（ばくだい）な", en: "enormous" },
+{ jp: "同等（どうとう）の", en: "equivalent" },
+{ jp: "確立（かくりつ）する", en: "establish" },
+{ jp: "超える（こえる）", en: "exceed" },
+{ jp: "促進（そくしん）する", en: "facilitate" },
+{ jp: "変動（へんどう）する", en: "fluctuate" },
+{ jp: "枠組み（わくぐみ）", en: "framework" },
+{ jp: "基本的（きほんてき）な", en: "fundamental" },
+{ jp: "生み出す（うみだす）", en: "generate" },
+{ jp: "仮説（かせつ）", en: "hypothesis" },
+{ jp: "思想（しそう）", en: "ideology" },
+{ jp: "含意（がんい）", en: "implication" },
+{ jp: "課す（かす）", en: "impose" },
+{ jp: "動機（どうき）", en: "incentive" },
+{ jp: "引き起こす（ひきおこす）", en: "induce" },
+{ jp: "避けられない（さけられない）", en: "inevitable" },
+{ jp: "推測（すいそく）する", en: "infer" },
+{ jp: "統合（とうごう）する", en: "integrate" },
+{ jp: "介入（かいにゅう）する", en: "intervene" },
+{ jp: "分離（ぶんり）する", en: "isolate" },
+{ jp: "概念（がいねん）", en: "notion" },
+{ jp: "目的（もくてき）", en: "objective" },
+{ jp: "得る（える）", en: "obtain" },
+{ jp: "相殺（そうさい）する", en: "offset" },
+{ jp: "全体的（ぜんたいてき）な", en: "overall" },
+{ jp: "持続（じぞく）する", en: "persist" },
+{ jp: "現象（げんしょう）", en: "phenomenon" },
+{ jp: "正確（せいかく）な", en: "precise" },
+{ jp: "予測（よそく）する", en: "predict" },
+{ jp: "割合（わりあい）", en: "proportion" },
+{ jp: "無作為（むさくい）の", en: "random" },
+{ jp: "範囲（はんい）", en: "range" },
+{ jp: "比率（ひりつ）", en: "ratio" },
+{ jp: "改良（かいりょう）する", en: "refine" },
+{ jp: "強化（きょうか）する", en: "reinforce" },
+{ jp: "必要（ひつよう）とする", en: "require" },
+{ jp: "解決（かいけつ）する", en: "resolve" },
+{ jp: "保持（ほじ）する", en: "retain" },
+{ jp: "明らかにする（あきらかにする）", en: "reveal" },
+{ jp: "逆転（ぎゃくてん）する", en: "reverse" },
+{ jp: "修正（しゅうせい）する", en: "revise" },
+{ jp: "分野（ぶんや）", en: "sector" },
+{ jp: "重要（じゅうよう）な", en: "significant" },
+{ jp: "模擬（もぎ）する", en: "simulate" },
+{ jp: "十分（じゅうぶん）な", en: "sufficient" },
+{ jp: "その後（ご）の", en: "subsequent" },
+{ jp: "調査（ちょうさ）", en: "survey" },
+{ jp: "維持（いじ）する", en: "sustain" },
+{ jp: "目標（もくひょう）", en: "target" },
+{ jp: "技術的（ぎじゅつてき）な", en: "technical" },
+{ jp: "理論的（りろんてき）な", en: "theoretical" },
+{ jp: "最終的（さいしゅうてき）な", en: "ultimate" },
+{ jp: "経験（けいけん）する", en: "undergo" },
+{ jp: "利用（りよう）する", en: "utilize" },
+{ jp: "有効（ゆうこう）な", en: "valid" },
+{ jp: "量（りょう）", en: "volume" },
+{ jp: "突然（とつぜん）の", en: "abrupt" },
+{ jp: "抽象的（ちゅうしょうてき）な", en: "abstract" },
+{ jp: "加速（かそく）する", en: "accelerate" },
+{ jp: "予期（よき）する", en: "anticipate" },
+{ jp: "明らか（あきらか）な", en: "apparent" },
+{ jp: "自動化（じどうか）する", en: "automate" },
+{ jp: "包括的（ほうかつてき）な", en: "comprehensive" },
+{ jp: "劣化（れっか）させる", en: "degrade" },
+{ jp: "発見（はっけん）する", en: "detect" },
+{ jp: "排除（はいじょ）する", en: "eliminate" },
+{ jp: "施行（しこう）する", en: "enforce" },
+{ jp: "明確（めいかく）な", en: "explicit" },
+{ jp: "抽出（ちゅうしゅつ）する", en: "extract" },
+{ jp: "本質的（ほんしつてき）な", en: "intrinsic" },
+{ jp: "均衡（きんこう）", en: "equilibrium" },
+{ jp: "実行可能（じっこうかのう）な", en: "feasible" },
+{ jp: "認識（にんしき）する", en: "perceive" },
+{ jp: "逆説（ぎゃくせつ）", en: "paradox" },
+{ jp: "相関（そうかん）", en: "correlation" },
+{ jp: "回復力（かいふくりょく）", en: "resilience" },
+{ jp: "安定（あんてい）", en: "stability" },
+{ jp: "閾値（いきち）", en: "threshold" },
+{ jp: "根底（こんてい）にある", en: "underlying" }
+];
+
+    const SYSTAN_WORDS = [
+  
+{ jp: "徹底的（てっていてき）に", en: "thoroughly" },
+{ jp: "Aに服従（ふくじゅう）する、提出（ていしゅつ）する", en: "submit" },
+{ jp: "誘惑（ゆうわく）する、する気にさせる", en: "tempt" },
+{ jp: "辞職（じしょく）する", en: "resign" },
+{ jp: "従（したが）う", en: "conform" },
+{ jp: "限定（げんてい）する", en: "confine" },
+{ jp: "組み立てる（くみたてる）", en: "assemble" },
+{ jp: "捧（ささ）げる", en: "dedicate" },
+{ jp: "主張（しゅちょう）する", en: "advocate" },
+{ jp: "繁栄（はんえい）する", en: "thrive" },
+{ jp: "引き起こす（ひきおこす）", en: "provoke" },
+{ jp: "命じる（めいじる）、要求（ようきゅう）する、決定（けってい）する", en: "dictate" },
+{ jp: "利用（りよう）する、開発（かいはつ）する", en: "exploit" },
+{ jp: "降伏（こうふく）する", en: "surrender" },
+{ jp: "再生（さいせい）する、複製（ふくせい）する、繁殖（はんしょく）する", en: "reproduce" },
+{ jp: "認める（みとめる）", en: "acknowledge" },
+{ jp: "膨（ふく）らむ", en: "swell" },
+{ jp: "落とす（おとす）", en: "shed" },
+{ jp: "曲がる（まがる）", en: "wind" },
+{ jp: "引き合いに出す（ひきあいにだす）", en: "cite" },
+{ jp: "消化（しょうか）する", en: "digest" },
+{ jp: "飛ばす（とばす）、抜かす（ぬかす）", en: "skip" },
+{ jp: "縛る（しばる）、束縛（そくばく）する", en: "bind" },
+{ jp: "溶解（ようかい）する", en: "dissolve" },
+{ jp: "実行（じっこう）する", en: "implement" },
+{ jp: "操縦（そうじゅう）する", en: "steer" },
+{ jp: "祝福（しゅくふく）する", en: "congratulate" },
+{ jp: "指定（してい）する", en: "designate" },
+{ jp: "破る（やぶる）、違反（いはん）する", en: "violate" },
+{ jp: "推定（すいてい）する、思う（おもう）", en: "presume" },
+{ jp: "（新人（しんじん）を）入れる（いれる）", en: "recruit" },
+{ jp: "同時（どうじ）に起きる、重なる（かさなる）", en: "coincide" },
+{ jp: "施行（しこう）する", en: "enforce" },
+{ jp: "取って代わる（とってかわる）、故郷（こきょう）から追い出す（おいだす）", en: "displace" },
+{ jp: "縮む（ちぢむ）、縮ませる（ちぢませる）、減る（へる）", en: "shrink" },
+{ jp: "裏切る（うらぎる）、漏らす（もらす）", en: "betray" },
+{ jp: "構成（こうせい）される、構成（こうせい）する、占める（しめる）", en: "comprise" },
+{ jp: "耽る（ふける）", en: "indulge" },
+{ jp: "入り込む（はいりこむ）", en: "penetrate" },
+{ jp: "壊滅（かいめつ）させる", en: "devastate" },
+{ jp: "突っ込む（つっこむ）", en: "plunge" },
+{ jp: "跳ね返る（はねかえる）", en: "bounce" },
+{ jp: "矛盾（むじゅん）する", en: "contradict" },
+{ jp: "処方（しょほう）する", en: "prescribe" },
+{ jp: "虐げる（しいたげる）", en: "oppress" },
+{ jp: "胸に抱く（むねにいだく）", en: "cherish" },
+{ jp: "照らす（てらす）、解明（かいめい）する", en: "illuminate" },
+{ jp: "きっかけになる", en: "trigger" },
+{ jp: "通勤（つうきん）する、通学（つうがく）する", en: "commute" },
+{ jp: "誘う（さそう）", en: "induce" },
+{ jp: "利用（りよう）する", en: "utilize" },
+{ jp: "ポキンと折れる（おれる）、折る（おる）", en: "snap" },
+{ jp: "提供（ていきょう）する", en: "donate" },
+{ jp: "（卵（たまご）を）かえす、かえる", en: "hatch" },
+{ jp: "囲む（かこむ）", en: "enclose" },
+{ jp: "普及（ふきゅう）している、広まる（ひろまる）", en: "prevail" },
+{ jp: "ため息（いき）をつく", en: "sigh" },
+{ jp: "漏れる（もれる）、漏らす（もらす）", en: "leak" },
+{ jp: "強制（きょうせい）する", en: "compel" },
+{ jp: "押しつぶす（おしつぶす）", en: "crush" },
+{ jp: "理解（りかい）する", en: "comprehend" },
+{ jp: "交渉（こうしょう）する", en: "negotiate" },
+{ jp: "持続（じぞく）する、残る（のこる）", en: "persist" },
+{ jp: "増やす（ふやす）、増える（ふえる）、掛ける（かける）", en: "multiply" },
+{ jp: "想像（そうぞう）する", en: "conceive" },
+{ jp: "埋め合わせる（うめあわせる）", en: "compensate" },
+{ jp: "中止（ちゅうし）する、つるす", en: "suspend" },
+{ jp: "かき立てる（かきたてる）", en: "stir" },
+{ jp: "浸す（ひたす）、びしょぬれにする、吸収（きゅうしゅう）する", en: "soak" },
+{ jp: "洗練（せんれん）する、磨き（みがき）をかける", en: "refine" },
+{ jp: "刺激（しげき）する、かき立てる（かきたてる）", en: "arouse" },
+{ jp: "先行（せんこう）する", en: "precede" },
+{ jp: "OをCにする、変える（かえる）", en: "render" },
+{ jp: "据え付ける（すえつける）、乗る（のる）", en: "mount" },
+{ jp: "退く（しりぞく）", en: "retreat" },
+{ jp: "驚かせる（おどろかせる）", en: "startle" },
+{ jp: "する勇気（ゆうき）がある", en: "dare" },
+{ jp: "領域（りょういき）、範囲（はんい）", en: "sphere" },
+{ jp: "連続（れんぞく）、順番（じゅんばん）、順序（じゅんじょ）", en: "sequence" },
+{ jp: "預金（よきん）、頭金（あたまきん）、堆積物（たいせきぶつ）", en: "deposit" },
+{ jp: "世論調査（せろんちょうさ）、投票（とうひょう）", en: "poll" },
+{ jp: "用心（ようじん）", en: "caution" },
+{ jp: "激怒（げきど）、怒り（いかり）", en: "rage" },
+{ jp: "式（しき）、公式（こうしき）、方法（ほうほう）、秘訣（ひけつ）、解決策（かいけつさく）", en: "formula" },
+{ jp: "筋（すじ）、たくらみ、陰謀（いんぼう）", en: "plot" },
+{ jp: "範囲（はんい）", en: "scope" },
+{ jp: "規範（きはん）", en: "norm" },
+{ jp: "嫌悪（けんお）", en: "disgust" },
+{ jp: "妥協（だきょう）", en: "compromise" },
+{ jp: "監督者（かんとくしゃ）", en: "supervisor" },
+{ jp: "逆説（ぎゃくせつ）", en: "paradox" },
+{ jp: "（生物（せいぶつ）の）組織（そしき）、ティッシュペーパー", en: "tissue" },
+{ jp: "崩壊（ほうかい）", en: "breakdown" },
+{ jp: "構想（こうそう）、主導権（しゅどうけん）", en: "initiative" },
+{ jp: "織物（おりもの）、布（ぬの）", en: "fabric" },
+{ jp: "宣伝（せんでん）、広告（こうこく）", en: "publicity" },
+{ jp: "頂上（ちょうじょう）、頂点（ちょうてん）、首脳会議（しゅのうかいぎ）", en: "summit" },
+{ jp: "群れ（むれ）", en: "flock" },
+{ jp: "疫病（えきびょう）", en: "plague" },
+{ jp: "急ぐこと（いそぐこと）", en: "haste" },
+{ jp: "うたた寝（ね）", en: "nap" },
+{ jp: "同盟国（どうめいこく）", en: "ally" },
+{ jp: "下書き（したがき）、草稿（そうこう）", en: "draft" },
+{ jp: "光景（こうけい）", en: "spectacle" },
+{ jp: "前提（ぜんてい）", en: "premise" },
+{ jp: "財産（ざいさん）", en: "asset" },
+{ jp: "遅れ（おくれ）", en: "lag" },
+{ jp: "療法（りょうほう）、治療法（ちりょうほう）", en: "therapy" },
+{ jp: "もてなし", en: "reception" },
+{ jp: "化合物（かごうぶつ）", en: "compound" },
+{ jp: "ありがたいもの、恵み（めぐみ）", en: "blessing" },
+{ jp: "感覚（かんかく）、感じ（かんじ）", en: "sensation" },
+{ jp: "不景気（ふけいき）、不況（ふきょう）", en: "recession" },
+{ jp: "棒（ぼう）、極（きょく）", en: "pole" },
+{ jp: "態度（たいど）、考え方（かんがえかた）、見通し（みとおし）、見込み（みこみ）", en: "outlook" },
+{ jp: "活動（かつどう）", en: "endeavor" },
+{ jp: "慈悲（じひ）、情け（なさけ）", en: "mercy" },
+{ jp: "相当（そうとう）するもの", en: "counterpart" },
+{ jp: "期間（きかん）、討論（とうろん）", en: "session" },
+{ jp: "変動範囲（へんどうはんい）、領域（りょういき）", en: "spectrum" },
+{ jp: "くず、がらくた", en: "junk" },
+{ jp: "崇拝（すうはい）", en: "worship" },
+{ jp: "しがちである、する傾向（けいこう）がある", en: "apt" },
+{ jp: "謙虚（けんきょ）な、粗末（そまつ）な", en: "humble" },
+{ jp: "得る権利（けんり）がある、題された（だいされた）", en: "entitled" },
+{ jp: "妥当（だとう）な、正当（せいとう）な", en: "valid" },
+{ jp: "かすかな", en: "faint" },
+{ jp: "堅い（かたい）", en: "stiff" },
+{ jp: "わかりにくい", en: "obscure" },
+{ jp: "激しい（はげしい）", en: "fierce" },
+{ jp: "深刻（しんこく）な、鋭い（するどい）", en: "acute" },
+{ jp: "何もしていない（なにもしていない）", en: "idle" },
+{ jp: "粗末（そまつ）な、粗野（そや）な", en: "crude" },
+{ jp: "嫉妬深い（しっとぶかい）、羨ましい（うらやましい）", en: "jealous" },
+{ jp: "妊娠（にんしん）している", en: "pregnant" },
+{ jp: "しがちである、可能性（かのうせい）が高い（たかい）", en: "liable" },
+{ jp: "頑固（がんこ）な", en: "stubborn" },
+{ jp: "まともな", en: "decent" },
+{ jp: "驚くべき（おどろくべき）", en: "marvelous" },
+{ jp: "誤解（ごかい）を招く（まねく）", en: "misleading" },
+{ jp: "合成（ごうせい）の", en: "synthetic" },
+{ jp: "クラシックの", en: "classical" },
+{ jp: "イスラム教（きょう）の", en: "Muslim" },
+{ jp: "予想（よそう）する", en: "anticipate" },
+{ jp: "こする", en: "rub" },
+{ jp: "処理（しょり）する", en: "dispose" },
+{ jp: "控える（ひかえる）", en: "refrain" },
+{ jp: "蓄積（ちくせき）する", en: "accumulate" },
+{ jp: "活気（かっき）づける", en: "boost" },
+{ jp: "引きずる（ひきずる）", en: "drag" },
+{ jp: "修正（しゅうせい）する", en: "revise" },
+{ jp: "かく", en: "scratch" },
+{ jp: "ほえる", en: "roar" },
+{ jp: "引用（いんよう）する", en: "quote" },
+{ jp: "咲く（さく）", en: "bloom" },
+{ jp: "差し込む（さしこむ）", en: "insert" },
+{ jp: "待つ（まつ）", en: "awaiting" },
+{ jp: "恐れる（おそれる）", en: "dread" },
+{ jp: "隠す（かくす）", en: "conceal" },
+{ jp: "豊か（ゆたか）にする", en: "enrich" },
+{ jp: "固執（こしつ）する", en: "cling" },
+{ jp: "勝る（まさる）", en: "surpass" },
+{ jp: "抑える（おさえる）", en: "suppress" },
+{ jp: "描く（えがく）", en: "portray" },
+{ jp: "急上昇（きゅうじょうしょう）する", en: "soaring" },
+{ jp: "排出（はいしゅつ）する", en: "drain" },
+{ jp: "ぼんやり光る（ひかる）", en: "glow" },
+{ jp: "移住（いじゅう）する", en: "migrate" },
+{ jp: "叫ぶ（さけぶ）", en: "exclaim" },
+{ jp: "及ぼす（およぼす）", en: "exert" },
+{ jp: "変装（へんそう）する、隠す（かくす）", en: "disguise" },
+{ jp: "加速（かそく）する", en: "accelerate" },
+{ jp: "住む（すむ）", en: "dwell" },
+{ jp: "融合（ゆうごう）させる", en: "integrate" },
+{ jp: "泣く（なく）", en: "weep" },
+{ jp: "安心（あんしん）させる", en: "reassure" },
+{ jp: "はって進む（すすむ）", en: "crawl" },
+{ jp: "抑制（よくせい）する", en: "restrain" },
+{ jp: "腹（はら）を立てる", en: "resent" },
+{ jp: "大声（おおごえ）で叫ぶ（さけぶ）", en: "yell" },
+{ jp: "評価（ひょうか）する", en: "assess" },
+{ jp: "彫る（ほる）", en: "carve" },
+{ jp: "止める（とめる）", en: "halt" },
+{ jp: "検査（けんさ）する", en: "inspect" },
+{ jp: "取り組む（とりくむ）", en: "tackle" },
+{ jp: "省く（はぶく）", en: "omit" },
+{ jp: "かむ", en: "chew" },
+{ jp: "再開（さいかい）する", en: "resume" },
+{ jp: "作る（つくる）", en: "mold" },
+{ jp: "収容（しゅうよう）できる", en: "accommodate" },
+{ jp: "消す（けす）", en: "erase" },
+{ jp: "推量（すいりょう）する", en: "inferred" },
+{ jp: "生き返らせる（いきかえらせる）", en: "revive" },
+{ jp: "考える（かんがえる）", en: "contemplate" },
+{ jp: "回転（かいてん）する", en: "rotate" },
+{ jp: "かき乱す（かきみだす）", en: "disrupt" },
+{ jp: "進路（しんろ）を決める（きめる）", en: "navigate" },
+{ jp: "痛む（いたむ）", en: "ache" },
+{ jp: "捨てる（すてる）", en: "discard" },
+{ jp: "取り入れる（とりいれる）", en: "incorporate" },
+{ jp: "追い越す（おいこす）", en: "overtake" },
+{ jp: "補う（おぎなう）", en: "supplement" },
+{ jp: "操作（そうさ）する", en: "manipulate" },
+{ jp: "養う（やしなう）", en: "nourish" },
+{ jp: "しぼる", en: "squeeze" },
+{ jp: "描く（えがく）", en: "depict" },
+{ jp: "そらす", en: "distract" },
+{ jp: "暴露（ばくろ）する", en: "disclose" },
+{ jp: "入学（にゅうがく）する", en: "enroll" },
+{ jp: "育てる（そだてる）", en: "nurture" },
+{ jp: "推測（すいそく）する", en: "speculate" },
+{ jp: "延ばす（のばす）", en: "prolong" },
+{ jp: "処刑（しょけい）する", en: "execute" },
+{ jp: "明らかにする（あきらかにする）", en: "uncover" },
+{ jp: "震える（ふるえる）", en: "tremble" },
+{ jp: "つかむ", en: "seize" },
+{ jp: "廃止（はいし）する", en: "abolish" },
+{ jp: "しかる", en: "scold" },
+{ jp: "達成（たっせい）する", en: "attain" },
+{ jp: "発する（はっする）", en: "utter" },
+{ jp: "逃げる（にげる）", en: "flee" },
+{ jp: "怒らせる（おこらせる）", en: "offending" },
+{ jp: "告白（こくはく）する", en: "confess" },
+{ jp: "延期（えんき）する", en: "postpone" },
+{ jp: "漂う（ただよう）", en: "drift" },
+{ jp: "織る（おる）", en: "weave" },
+{ jp: "備え付ける（そなえつける）", en: "install" },
+{ jp: "ねじ曲げる（まげる）", en: "twist" },
+{ jp: "取り出す（とりだす）", en: "extract" },
+{ jp: "ぶつかる", en: "bump" },
+{ jp: "軽蔑（けいべつ）する", en: "despise" },
+{ jp: "我慢（がまん）する", en: "tolerate" },
+{ jp: "自慢（じまん）する", en: "boast" },
+{ jp: "栄えている（さかえている）", en: "flourishing" },
+{ jp: "無視（むし）する", en: "disregard" },
+{ jp: "からかう", en: "tease" },
+{ jp: "強める（つよめる）", en: "reinforce" },
+{ jp: "努力（どりょく）する", en: "strive" },
+{ jp: "合わせる（あわせる）", en: "coordinate" },
+{ jp: "あくびをする", en: "yawn" },
+{ jp: "抱きしめる（だきしめる）", en: "hug" },
+{ jp: "戦う（たたかう）", en: "combat" },
+{ jp: "編む（あむ）", en: "knit" },
+{ jp: "疲労（ひろう）", en: "fatigue" },
+{ jp: "名声（めいせい）", en: "fame" },
+{ jp: "めちゃくちゃ", en: "mess" },
+{ jp: "尊厳（そんげん）", en: "dignity" },
+{ jp: "運河（うんが）", en: "canal" },
+{ jp: "干ばつ（かんばつ）", en: "drought" },
+{ jp: "絶望（ぜつぼう）", en: "despair" },
+{ jp: "間隔（かんかく）", en: "interval" },
+{ jp: "荷物（にもつ）", en: "luggage" },
+{ jp: "代表（だいひょう）して", en: "behalf" },
+{ jp: "衝動（しょうどう）", en: "impulse" },
+{ jp: "破片（はへん）", en: "debris" },
+{ jp: "野獣（やじゅう）", en: "beast" },
+{ jp: "迷信（めいしん）", en: "superstition" },
+{ jp: "幻想（げんそう）、錯覚（さっかく）", en: "illusion" },
+{ jp: "糸（いと）", en: "thread" },
+{ jp: "摂取量（せっしゅりょう）", en: "intake" },
+{ jp: "宴会（えんかい）", en: "feast" },
+{ jp: "移り変わり（うつりかわり）", en: "transition" },
+{ jp: "悲惨（ひさん）さ", en: "misery" },
+{ jp: "放射線（ほうしゃせん）", en: "radiation" },
+{ jp: "丸太（まるた）", en: "log" },
+{ jp: "合意（ごうい）", en: "consensus" },
+{ jp: "行い（おこない）", en: "deed" },
+{ jp: "ことわざ", en: "proverb" },
+{ jp: "ほめ言葉（ことば）", en: "compliment" },
+{ jp: "炎（ほのお）", en: "flame" },
+{ jp: "記念日（きねんび）", en: "anniversary" },
+{ jp: "良心（りょうしん）", en: "conscience" },
+{ jp: "探検（たんけん）", en: "expedition" },
+{ jp: "子孫（しそん）", en: "offspring" },
+{ jp: "こづかい", en: "allowance" },
+{ jp: "大見出し（おおみだし）", en: "headline" },
+{ jp: "条約（じょうやく）", en: "treaty" },
+{ jp: "記念碑（きねんひ）", en: "monument" },
+{ jp: "虫（むし）", en: "worm" },
+{ jp: "治療法（ちりょうほう）", en: "remedy" },
+{ jp: "百科事典（ひゃっかじてん）", en: "encyclopedia" },
+{ jp: "ちらり", en: "glimpse" },
+{ jp: "職員（しょくいん）", en: "personnel" },
+{ jp: "勝利（しょうり）", en: "triumph" },
+{ jp: "算数（さんすう）", en: "arithmetic" },
+{ jp: "自尊心（じそんしん）", en: "self-esteem" },
+{ jp: "微生物（びせいぶつ）", en: "microbe" },
+{ jp: "可能性（かのうせい）", en: "odds" },
+{ jp: "混沌（こんとん）", en: "chaos" },
+{ jp: "運命（うんめい）", en: "destiny" },
+{ jp: "直径（ちょっけい）", en: "diameter" },
+{ jp: "宝くじ（たからくじ）", en: "lottery" },
+{ jp: "みやげ物（もの）", en: "souvenir" },
+{ jp: "小道（こみち）", en: "trail" },
+{ jp: "比率（ひりつ）", en: "ratio" },
+{ jp: "剣（けん）", en: "sword" },
+{ jp: "笛（ふえ）", en: "whistle" },
+{ jp: "感情（かんじょう）", en: "sentiment" },
+{ jp: "雑用（ざつよう）", en: "chore" },
+{ jp: "礼儀（れいぎ）", en: "courtesy" },
+{ jp: "市長（しちょう）", en: "mayor" },
+{ jp: "監視（かんし）、見張り（みはり）", en: "surveillance" },
+{ jp: "ごみ", en: "trash" },
+{ jp: "名声（めいせい）", en: "prestige" },
+{ jp: "本部（ほんぶ）、本社（ほんしゃ）", en: "headquarters" },
+{ jp: "荒野（こうや）", en: "wilderness" },
+{ jp: "軌道（きどう）", en: "orbit" },
+{ jp: "偏見（へんけん）", en: "bias" },
+{ jp: "共和国（きょうわこく）", en: "republic" },
+{ jp: "掘り出し物（ほりだしもの）", en: "bargain" },
+{ jp: "領域（りょういき）", en: "domain" },
+{ jp: "破片（はへん）", en: "fragment" },
+{ jp: "銀河（ぎんが）", en: "galaxy" },
+{ jp: "ひざ", en: "lap" },
+{ jp: "締め切り（しめきり）", en: "deadline" },
+{ jp: "弾丸（だんがん）", en: "bullet" },
+{ jp: "歩行者（ほこうしゃ）", en: "pedestrian" },
+{ jp: "機知（きち）", en: "wit" },
+{ jp: "迷惑（めいわく）", en: "nuisance" },
+{ jp: "基準（きじゅん）", en: "criteria" },
+{ jp: "苦難（くなん）", en: "hardship" },
+{ jp: "栄光（えいこう）", en: "glory" },
+{ jp: "歩道（ほどう）", en: "pavement" },
+{ jp: "海軍（かいぐん）", en: "navy" },
+{ jp: "台本（だいほん）", en: "script" },
+{ jp: "年金（ねんきん）", en: "pension" },
+{ jp: "州（しゅう）", en: "province" },
+{ jp: "余剰（よじょう）", en: "surplus" },
+{ jp: "水分（すいぶん）", en: "moisture" },
+{ jp: "あて布（あてぬの）", en: "patch" },
+{ jp: "高度（こうど）、標高（ひょうこう）", en: "altitude" },
+{ jp: "温度計（おんどけい）", en: "thermometer" },
+{ jp: "授業料（じゅぎょうりょう）", en: "tuition" },
+{ jp: "軍隊（ぐんたい）", en: "troop" },
+{ jp: "霊長類（れいちょうるい）", en: "primate" },
+{ jp: "欠陥（けっかん）", en: "flaw" },
+{ jp: "甥（おい）", en: "nephew" },
+{ jp: "衣服（いふく）", en: "garment" },
+{ jp: "診断（しんだん）", en: "diagnosis" },
+{ jp: "商業（しょうぎょう）", en: "commerce" },
+{ jp: "古代（こだい）、古物（こぶつ）", en: "antiquity" },
+{ jp: "ほんの一部（いちぶ）", en: "fraction" },
+{ jp: "皮肉（ひにく）", en: "irony" },
+{ jp: "悪夢（あくむ）", en: "nightmare" },
+{ jp: "欠陥（けっかん）", en: "defect" },
+{ jp: "証明書（しょうめいしょ）", en: "certificate" },
+{ jp: "腐敗（ふはい）", en: "decay" },
+{ jp: "浸食（しんしょく）", en: "erosion" },
+{ jp: "秘けつ", en: "recipe" },
+{ jp: "骨格（こっかく）", en: "skeleton" },
+{ jp: "優雅（ゆうが）さ", en: "grace" },
+{ jp: "名所（めいしょ）", en: "landmark" },
+{ jp: "認知症（にんちしょう）", en: "dementia" },
+{ jp: "肉（にく）", en: "flesh" },
+{ jp: "衝突（しょうとつ）、対立（たいりつ）", en: "collision" },
+{ jp: "危険（きけん）なもの", en: "hazard" },
+{ jp: "墓（はか）", en: "tomb" },
+{ jp: "注射（ちゅうしゃ）", en: "injection" },
+{ jp: "飛躍的進歩（ひやくてきしんぽ）", en: "breakthrough" },
+{ jp: "革（かわ）", en: "leather" },
+{ jp: "宝石（ほうせき）", en: "jewelry" },
+{ jp: "合図（あいず）", en: "cue" },
+{ jp: "救急車（きゅうきゅうしゃ）", en: "ambulance" },
+{ jp: "不動産（ふどうさん）", en: "estate" },
+{ jp: "商品（しょうひん）", en: "commodity" },
+{ jp: "出発（しゅっぱつ）", en: "departure" },
+{ jp: "段階（だんかい）", en: "phase" },
+{ jp: "泥棒（どろぼう）", en: "thief" },
+{ jp: "聖（せい）", en: "saint" },
+{ jp: "彫刻（ちょうこく）", en: "sculpture" },
+{ jp: "悲しみ（かなしみ）", en: "grief" },
+{ jp: "車線（しゃせん）", en: "lane" },
+{ jp: "捕食動物（ほしょくどうぶつ）", en: "predator" },
+{ jp: "流体（りゅうたい）", en: "fluid" },
+{ jp: "はげみ", en: "incentive" },
+{ jp: "花嫁（はなよめ）", en: "bride" },
+{ jp: "介入（かいにゅう）", en: "intervention" },
+{ jp: "差（さ）", en: "margin" },
+{ jp: "伝記（でんき）", en: "biography" },
+{ jp: "同意（どうい）", en: "consent" },
+{ jp: "火山（かざん）", en: "volcano" },
+{ jp: "反逆者（はんぎゃくしゃ）", en: "rebel" },
+{ jp: "比喩（ひゆ）", en: "metaphor" },
+{ jp: "法律（ほうりつ）", en: "legislation" },
+{ jp: "雷（かみなり）", en: "lightning" },
+{ jp: "殺虫剤（さっちゅうざい）", en: "pesticide" },
+{ jp: "コラム", en: "column" },
+{ jp: "うわさ", en: "rumor" },
+{ jp: "ほこり", en: "dust" },
+{ jp: "対話（たいわ）", en: "dialogue" },
+{ jp: "幼稚園（ようちえん）", en: "kindergarten" },
+{ jp: "糖尿病（とうにょうびょう）", en: "diabetes" },
+{ jp: "肥満（ひまん）", en: "obesity" },
+{ jp: "特許（とっきょ）", en: "patent" },
+{ jp: "章（しょう）", en: "chapter" },
+{ jp: "宮殿（きゅうでん）", en: "palace" },
+{ jp: "洗濯（せんたく）", en: "laundry" },
+{ jp: "病棟（びょうとう）", en: "ward" },
+{ jp: "ぼっ発（ぼっぱつ）", en: "outbreak" },
+{ jp: "方程式（ほうていしき）", en: "equation" },
+{ jp: "考古学者（こうこがくしゃ）", en: "archaeologist" },
+{ jp: "腐敗（ふはい）", en: "corruption" },
+{ jp: "細菌（さいきん）", en: "germ" },
+{ jp: "収入（しゅうにゅう）", en: "revenue" },
+{ jp: "配偶者（はいぐうしゃ）", en: "spouse" },
+{ jp: "流行（りゅうこう）", en: "epidemic" },
+{ jp: "死亡（しぼう）", en: "mortality" },
+{ jp: "症候群（しょうこうぐん）", en: "syndrome" },
+{ jp: "小売り（こうり）", en: "retail" },
+{ jp: "量（りょう）", en: "dose" },
+{ jp: "飲み物（のみもの）", en: "beverage" },
+{ jp: "新陳代謝（しんちんたいしゃ）", en: "metabolism" },
+{ jp: "交配種（こうはいしゅ）", en: "hybrid" },
+{ jp: "香り（かおり）", en: "scent" },
+{ jp: "炎症（えんしょう）", en: "inflammation" },
+{ jp: "薬（くすり）", en: "pill" },
+{ jp: "重大（じゅうだい）な", en: "grave" },
+{ jp: "肥えた（こえた）", en: "fertile" },
+{ jp: "反感（はんかん）を持つ（もつ）", en: "hostile" },
+{ jp: "不可欠（ふかけつ）な", en: "indispensable" },
+{ jp: "志向（しこう）の", en: "oriented" },
+{ jp: "すばらしい", en: "splendid" },
+{ jp: "有能（ゆうのう）な", en: "competent" },
+{ jp: "最高（さいこう）の", en: "supreme" },
+{ jp: "わかりやすい", en: "straightforward" },
+{ jp: "聖（せい）なる", en: "sacred" },
+{ jp: "大胆（だいたん）な", en: "bold" },
+{ jp: "不安（ふあん）な", en: "uneasy" },
+{ jp: "きちんとした", en: "neat" },
+{ jp: "浅い（あさい）", en: "shallow" },
+{ jp: "偽物（にせもの）の", en: "fake" },
+{ jp: "表面的（ひょうめんてき）な", en: "superficial" },
+{ jp: "ばかげた", en: "absurd" },
+{ jp: "壊れやすい（こわれやすい）", en: "fragile" },
+{ jp: "ちゃんとした", en: "respectable" },
+{ jp: "すばらしい", en: "magnificent" },
+{ jp: "無限（むげん）の", en: "infinite" },
+{ jp: "包括的（ほうかつてき）な", en: "comprehensive" },
+{ jp: "険しい（けわしい）", en: "steep" },
+{ jp: "総（そう）", en: "gross" },
+{ jp: "次（つぎ）に起こる（おこる）", en: "subsequent" },
+{ jp: "心（こころ）からの", en: "sincere" },
+{ jp: "有毒（ゆうどく）な", en: "toxic" },
+{ jp: "中立（ちゅうりつ）の", en: "neutral" },
+{ jp: "勤勉（きんべん）な", en: "diligent" },
+{ jp: "痛い（いたい）", en: "sore" },
+{ jp: "汚染（おせん）された", en: "contaminated" },
+{ jp: "あいまいな", en: "ambiguous" },
+{ jp: "口述（こうじゅつ）の", en: "oral" },
+{ jp: "落ち着かない（おちつかない）", en: "restless" },
+{ jp: "腐った（くさった）", en: "rotten" },
+{ jp: "精力的（せいりょくてき）な", en: "vigorous" },
+{ jp: "莫大（ばくだい）な", en: "immense" },
+{ jp: "大都市（だいとし）の", en: "metropolitan" },
+{ jp: "時間（じかん）を守る（まもる）", en: "punctual" },
+{ jp: "孤独（こどく）な", en: "solitary" },
+{ jp: "集団（しゅうだん）", en: "collective" },
+{ jp: "外交（がいこう）の", en: "diplomatic" },
+{ jp: "不快（ふかい）な", en: "nasty" },
+{ jp: "無力（むりょく）な", en: "helpless" },
+{ jp: "明確（めいかく）な", en: "explicit" },
+{ jp: "破産（はさん）した", en: "bankrupt" },
+{ jp: "永遠（えいえん）の", en: "eternal" },
+{ jp: "唯一（ゆいいつ）の", en: "sole" },
+{ jp: "すっぱい", en: "sour" },
+{ jp: "注目（ちゅうもく）すべき", en: "notable" },
+{ jp: "裕福（ゆうふく）な", en: "affluent" },
+{ jp: "裸（はだか）の", en: "naked" },
+{ jp: "発声（はっせい）", en: "vocal" },
+{ jp: "女性（じょせい）の", en: "feminine" },
+{ jp: "空いている（あいている）", en: "vacant" },
+{ jp: "外来（がいらい）の", en: "exotic" },
+{ jp: "厳格（げんかく）な", en: "rigid" },
+{ jp: "蒸し暑い（むしあつい）", en: "humid" },
+{ jp: "傑出（けっしゅつ）した", en: "outstanding" },
+{ jp: "中毒（ちゅうどく）である", en: "addicted" },
+{ jp: "受けやすい（うけやすい）", en: "vulnerable" },
+{ jp: "自然（しぜん）に起こる（おこる）", en: "spontaneous" },
+{ jp: "貪欲（どんよく）な", en: "greedy" },
+{ jp: "ささいな", en: "trivial" },
+{ jp: "一人当たり（ひとりあたり）の", en: "per capita" },
+{ jp: "元から伴う（もとからともなう）", en: "inherent" },
+{ jp: "前途有望（ぜんとゆうぼう）な", en: "promising" },
+{ jp: "生理的（せいりてき）な", en: "physiological" },
+{ jp: "臨床（りんしょう）の", en: "clinical" },
+{ jp: "慢性（まんせい）の", en: "chronic" },
+{ jp: "地質学的（ちしつがくてき）な", en: "geological" },
+{ jp: "無数（むすう）の", en: "countless" },
+{ jp: "先天的（せんてんてき）な", en: "innate" },
+{ jp: "用心（ようじん）する", en: "alert" },
+{ jp: "自動（じどう）の", en: "autonomous" },
+{ jp: "同時（どうじ）に", en: "simultaneously" },
+{ jp: "まったく", en: "utterly" },
+{ jp: "劇的（げきてき）に", en: "drastically" },
+{ jp: "必ずしも（かならずしも）", en: "necessarily" },
+{ jp: "そうすることで", en: "thereby" },
+{ jp: "率直（そっちょく）に", en: "frankly" },
+{ jp: "すなわち", en: "namely" },
+{ jp: "だから", en: "hence" },
+{ jp: "経由（けいゆ）で", en: "via" },
+{ jp: "のために", en: "owing" }
+    ];
+
+    const scoreValue = document.getElementById('scoreValue');
+    const timeValue = document.getElementById('timeValue');
+    const comboValue = document.getElementById('comboValue');
+    const comboTimerValue = document.getElementById('comboTimerValue');
+    const questionText = document.getElementById('questionText');
+    const feedbackText = document.getElementById('feedbackText');
+    const arena = document.getElementById('arena');
+    const modeBadge = document.getElementById('modeBadge');
+
+    const menuOverlay = document.getElementById('menuOverlay');
+    const rankingOverlay = document.getElementById('rankingOverlay');
+    const resultOverlay = document.getElementById('resultOverlay');
+
+    const menuBtn = document.getElementById('menuBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const startIeltsBtn = document.getElementById('startIeltsBtn');
+    const startSystanBtn = document.getElementById('startSystanBtn');
+    const openRankingBtn = document.getElementById('openRankingBtn');
+    const closeRankingBtn = document.getElementById('closeRankingBtn');
+    const rankingTabIelts = document.getElementById('rankingTabIelts');
+    const rankingTabSystan = document.getElementById('rankingTabSystan');
+
+    const finalScore = document.getElementById('finalScore');
+    const finalAccuracy = document.getElementById('finalAccuracy');
+    const finalCorrect = document.getElementById('finalCorrect');
+    const finalMaxCombo = document.getElementById('finalMaxCombo');
+
+    const rankingList = document.getElementById('rankingList');
+    const rankingScreenList = document.getElementById('rankingScreenList');
+    const rankingStatus = document.getElementById('rankingStatus');
+    const saveStatus = document.getElementById('saveStatus');
+
+    const comboPopup = document.getElementById('comboPopup');
+    const flashEffect = document.getElementById('flashEffect');
+
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const backToMenuBtn = document.getElementById('backToMenuBtn');
+
+    const GAME = {
+      lastCountdownBeepSecond: null,
+      running: false,
+      score: 0,
+      timeLeft: 30,
+      combo: 0,
+      maxCombo: 0,
+      correctCount: 0,
+      attemptCount: 0,
+      currentQuestion: null,
+      comboDeadline: null,
+      questionLocked: false,
+      tickTimer: null,
+      balloons: [],
+      scoreSavedThisRound: false
+    };
 
     function ensureAudio() {
       if (!audioCtx) {
@@ -641,298 +1403,17 @@ const supabaseClient = supabase.createClient(
       setTimeout(() => playTone(784, 0.14, 'triangle', 0.045, 988), 180);
     }
 
-    const words = [
-      { jp: "廃止する", en: "abolish" },
-      { jp: "曖昧さ", en: "ambiguity" },
-      { jp: "確かめる", en: "ascertain" },
-      { jp: "豊富な", en: "abundant" },
-      { jp: "伴う", en: "accompany" },
-      { jp: "蓄積する", en: "accumulate" },
-      { jp: "隣接した", en: "adjacent" },
-      { jp: "主張する", en: "advocate" },
-      { jp: "割り当てる", en: "allocate" },
-      { jp: "おおよその", en: "approximate" },
-      { jp: "任意の", en: "arbitrary" },
-      { jp: "生じる", en: "arise" },
-      { jp: "仮定", en: "assumption" },
-      { jp: "～のせいにする", en: "attribute" },
-      { jp: "偏り", en: "bias" },
-      { jp: "容量・能力", en: "capacity" },
-      { jp: "終わる", en: "cease" },
-      { jp: "一貫した", en: "coherent" },
-      { jp: "同時に起こる", en: "coincide" },
-      { jp: "まとめる", en: "compile" },
-      { jp: "補完する", en: "complement" },
-      { jp: "複雑さ", en: "complexity" },
-      { jp: "構成要素", en: "component" },
-      { jp: "構成される", en: "comprise" },
-      { jp: "思いつく", en: "conceive" },
-      { jp: "制限する", en: "confine" },
-      { jp: "論争", en: "controversy" },
-      { jp: "招集する", en: "convene" },
-      { jp: "逆の", en: "converse" },
-      { jp: "基準", en: "criteria" },
-      { jp: "重大な", en: "crucial" },
-      { jp: "累積した", en: "cumulative" },
-      { jp: "減少", en: "decline" },
-      { jp: "推測する", en: "deduce" },
-      { jp: "密度", en: "density" },
-      { jp: "引き出す", en: "derive" },
-      { jp: "逸脱する", en: "deviate" },
-      { jp: "個別の", en: "discrete" },
-      { jp: "取って代わる", en: "displace" },
-      { jp: "広める", en: "disseminate" },
-      { jp: "歪める", en: "distort" },
-      { jp: "期間", en: "duration" },
-      { jp: "実証的な", en: "empirical" },
-      { jp: "高める", en: "enhance" },
-      { jp: "莫大な", en: "enormous" },
-      { jp: "同等の", en: "equivalent" },
-      { jp: "徐々に失う", en: "erode" },
-      { jp: "確立する", en: "establish" },
-      { jp: "超える", en: "exceed" },
-      { jp: "さらされること", en: "exposure" },
-      { jp: "促進する", en: "facilitate" },
-      { jp: "変動する", en: "fluctuate" },
-      { jp: "枠組み", en: "framework" },
-      { jp: "基本的な", en: "fundamental" },
-      { jp: "生み出す", en: "generate" },
-      { jp: "仮説", en: "hypothesis" },
-      { jp: "同一の", en: "identical" },
-      { jp: "思想", en: "ideology" },
-      { jp: "含意", en: "implication" },
-      { jp: "課す", en: "impose" },
-      { jp: "動機", en: "incentive" },
-      { jp: "発生率", en: "incidence" },
-      { jp: "傾向がある", en: "incline" },
-      { jp: "引き起こす", en: "induce" },
-      { jp: "避けられない", en: "inevitable" },
-      { jp: "推測する", en: "infer" },
-      { jp: "初期の", en: "initial" },
-      { jp: "例", en: "instance" },
-      { jp: "統合する", en: "integrate" },
-      { jp: "介入する", en: "intervene" },
-      { jp: "分離する", en: "isolate" },
-      { jp: "層", en: "layer" },
-      { jp: "課税する", en: "levy" },
-      { jp: "同様に", en: "likewise" },
-      { jp: "維持する", en: "maintain" },
-      { jp: "差・余白", en: "margin" },
-      { jp: "移動する", en: "migrate" },
-      { jp: "方法", en: "mode" },
-      { jp: "修正する", en: "modify" },
-      { jp: "監視する", en: "monitor" },
-      { jp: "網状組織", en: "network" },
-      { jp: "概念", en: "notion" },
-      { jp: "目的", en: "objective" },
-      { jp: "得る", en: "obtain" },
-      { jp: "相殺する", en: "offset" },
-      { jp: "進行中の", en: "ongoing" },
-      { jp: "全体的な", en: "overall" },
-      { jp: "変数・範囲", en: "parameter" },
-      { jp: "持続する", en: "persist" },
-      { jp: "現象", en: "phenomenon" },
-      { jp: "一部", en: "portion" },
-      { jp: "引き起こす", en: "pose" },
-      { jp: "正確な", en: "precise" },
-      { jp: "予測する", en: "predict" },
-      { jp: "支配的な", en: "predominant" },
-      { jp: "予備の", en: "preliminary" },
-      { jp: "推定する", en: "presume" },
-      { jp: "前の", en: "previous" },
-      { jp: "主に", en: "primarily" },
-      { jp: "以前の", en: "prior" },
-      { jp: "禁止する", en: "prohibit" },
-      { jp: "重要な・著名な", en: "prominent" },
-      { jp: "割合", en: "proportion" },
-      { jp: "急進的な", en: "radical" },
-      { jp: "無作為の", en: "random" },
-      { jp: "範囲", en: "range" },
-      { jp: "比率", en: "ratio" },
-      { jp: "改良する", en: "refine" },
-      { jp: "体制", en: "regime" },
-      { jp: "強化する", en: "reinforce" },
-      { jp: "気が進まない", en: "reluctant" },
-      { jp: "取り除く", en: "remove" },
-      { jp: "必要とする", en: "require" },
-      { jp: "解決する", en: "resolve" },
-      { jp: "保持する", en: "retain" },
-      { jp: "明らかにする", en: "reveal" },
-      { jp: "逆転する", en: "reverse" },
-      { jp: "修正する", en: "revise" },
-      { jp: "予定", en: "schedule" },
-      { jp: "分野", en: "sector" },
-      { jp: "変化", en: "shift" },
-      { jp: "重要な", en: "significant" },
-      { jp: "模擬する", en: "simulate" },
-      { jp: "場所", en: "site" },
-      { jp: "いわゆる", en: "so-called" },
-      { jp: "いくぶん", en: "somewhat" },
-      { jp: "十分な", en: "sufficient" },
-      { jp: "その後の", en: "subsequent" },
-      { jp: "合計", en: "sum" },
-      { jp: "調査", en: "survey" },
-      { jp: "一時停止する", en: "suspend" },
-      { jp: "維持する", en: "sustain" },
-      { jp: "目標", en: "target" },
-      { jp: "技術的な", en: "technical" },
-      { jp: "一時的な", en: "temporary" },
-      { jp: "理論的な", en: "theoretical" },
-      { jp: "それによって", en: "thereby" },
-      { jp: "引き起こす", en: "trigger" },
-      { jp: "最終的な", en: "ultimate" },
-      { jp: "経験する", en: "undergo" },
-      { jp: "利用する", en: "utilize" },
-      { jp: "有効な", en: "valid" },
-      { jp: "～を通じて", en: "via" },
-      { jp: "量", en: "volume" },
-      { jp: "一方で", en: "whereas" },
-      { jp: "突然の", en: "abrupt" },
-      { jp: "抽象的な", en: "abstract" },
-      { jp: "加速する", en: "accelerate" },
-      { jp: "適応する・収容する", en: "accommodate" },
-      { jp: "合計の・集合した", en: "aggregate" },
-      { jp: "予期する", en: "anticipate" },
-      { jp: "明らかな", en: "apparent" },
-      { jp: "自動化する", en: "automate" },
-      { jp: "大部分", en: "bulk" },
-      { jp: "互換性のある", en: "compatible" },
-      { jp: "包括的な", en: "comprehensive" },
-      { jp: "論争の的の", en: "controversial" },
-      { jp: "劣化させる", en: "degrade" },
-      { jp: "示す", en: "denote" },
-      { jp: "発見する", en: "detect" },
-      { jp: "減少する", en: "diminish" },
-      { jp: "排除する", en: "eliminate" },
-      { jp: "施行する", en: "enforce" },
-      { jp: "明確な", en: "explicit" },
-      { jp: "活用する・搾取する", en: "exploit" },
-      { jp: "抽出する", en: "extract" },
-      { jp: "来たるべき", en: "forthcoming" },
-      { jp: "説明する", en: "illustrate" },
-      { jp: "最初は", en: "initially" },
-      { jp: "本質的な", en: "intrinsic" },
-      { jp: "不利な・有害な", en: "adverse" },
-      { jp: "～ではあるが", en: "albeit" },
-      { jp: "類似した", en: "analogous" },
-      { jp: "異常・例外", en: "anomaly" },
-      { jp: "装置", en: "apparatus" },
-      { jp: "かなりの", en: "appreciable" },
-      { jp: "～のせいにする", en: "ascribe" },
-      { jp: "同化する・吸収する", en: "assimilate" },
-      { jp: "弱める", en: "attenuate" },
-      { jp: "相応の", en: "commensurate" },
-      { jp: "与える", en: "confer" },
-      { jp: "矛盾する", en: "contradict" },
-      { jp: "詳述する", en: "delineate" },
-      { jp: "分岐する・逸脱する", en: "diverge" },
-      { jp: "均衡", en: "equilibrium" },
-      { jp: "悪化させる", en: "exacerbate" },
-      { jp: "実行可能な", en: "feasible" },
-      { jp: "体系化する", en: "formulate" },
-      { jp: "不可欠な", en: "integral" },
-      { jp: "引き起こす", en: "invoke" },
-      { jp: "わずかな", en: "marginal" },
-      { jp: "～にもかかわらず", en: "notwithstanding" },
-      { jp: "逆説", en: "paradox" },
-      { jp: "認識する", en: "perceive" },
-      { jp: "仮の", en: "tentative" },
-      { jp: "逸脱・異常", en: "aberration" },
-      { jp: "抽象概念", en: "abstraction" },
-      { jp: "蓄積する", en: "accrue" },
-      { jp: "出現", en: "advent" },
-      { jp: "一致", en: "alignment" },
-      { jp: "原型", en: "archetype" },
-      { jp: "非対称", en: "asymmetry" },
-      { jp: "自律した", en: "autonomous" },
-      { jp: "結束", en: "cohesion" },
-      { jp: "主張する", en: "contend" },
-      { jp: "～次第の", en: "contingent" },
-      { jp: "収束", en: "convergence" },
-      { jp: "相関", en: "correlation" },
-      { jp: "決定要因", en: "determinant" },
-      { jp: "拡散", en: "diffusion" },
-      { jp: "格差", en: "disparity" },
-      { jp: "特徴的な", en: "distinctive" },
-      { jp: "領域", en: "domain" },
-      { jp: "出現", en: "emergence" },
-      { jp: "固有の", en: "endemic" },
-      { jp: "進化の", en: "evolutionary" },
-      { jp: "指数関数的な", en: "exponential" },
-      { jp: "欠点", en: "flaw" },
-      { jp: "階層", en: "hierarchy" },
-      { jp: "仮説の", en: "hypothetical" },
-      { jp: "基盤", en: "infrastructure" },
-      { jp: "相互作用", en: "interplay" },
-      { jp: "可能性", en: "likelihood" },
-      { jp: "表れ", en: "manifestation" },
-      { jp: "仕組み", en: "mechanism" },
-      { jp: "理論枠組み", en: "paradigm" },
-      { jp: "周辺の", en: "peripheral" },
-      { jp: "優勢", en: "predominance" },
-      { jp: "見込み", en: "prospect" },
-      { jp: "手順", en: "protocol" },
-      { jp: "質的な", en: "qualitative" },
-      { jp: "量的な", en: "quantitative" },
-      { jp: "改良", en: "refinement" },
-      { jp: "規制", en: "regulation" },
-      { jp: "回復力", en: "resilience" },
-      { jp: "保持", en: "retention" },
-      { jp: "想定", en: "scenario" },
-      { jp: "安定", en: "stability" },
-      { jp: "従属する", en: "subordinate" },
-      { jp: "置換", en: "substitution" },
-      { jp: "連続する", en: "successive" },
-      { jp: "統合", en: "synthesis" },
-      { jp: "閾値", en: "threshold" },
-      { jp: "軌道・推移", en: "trajectory" },
-      { jp: "根底にある", en: "underlying" },
-      { jp: "妥当性", en: "validity" },
-      { jp: "変動", en: "variation" },
-      { jp: "広範囲の", en: "widespread" }
-    ];
+    function getWords() {
+      return currentMode === "systan" ? SYSTAN_WORDS : IELTS_WORDS;
+    }
 
-    const scoreValue = document.getElementById('scoreValue');
-    const timeValue = document.getElementById('timeValue');
-    const comboValue = document.getElementById('comboValue');
-    const comboTimerValue = document.getElementById('comboTimerValue');
-    const questionText = document.getElementById('questionText');
-    const feedbackText = document.getElementById('feedbackText');
-    const arena = document.getElementById('arena');
-    const startOverlay = document.getElementById('startOverlay');
-    const resultOverlay = document.getElementById('resultOverlay');
+    function getModeLabel(mode = currentMode) {
+      return mode === "systan" ? "シス単" : "IELTS";
+    }
 
-    const startBtn = document.getElementById('startBtn');
-    const retryBtn = document.getElementById('retryBtn');
-    const startOverlayBtn = document.getElementById('startOverlayBtn');
-    const playAgainBtn = document.getElementById('playAgainBtn');
-
-    const finalScore = document.getElementById('finalScore');
-    const finalAccuracy = document.getElementById('finalAccuracy');
-    const finalCorrect = document.getElementById('finalCorrect');
-    const finalMaxCombo = document.getElementById('finalMaxCombo');
-
-    const comboPopup = document.getElementById('comboPopup');
-    const flashEffect = document.getElementById('flashEffect');
-    const rankingList = document.getElementById('rankingList');
-
-    const GAME = {
-      lastCountdownBeepSecond: null,
-      running: false,
-      score: 0,
-      timeLeft: 30,
-      combo: 0,
-      maxCombo: 0,
-      correctCount: 0,
-      attemptCount: 0,
-      currentQuestion: null,
-      comboDeadline: null,
-      questionLocked: false,
-      tickTimer: null,
-      animTimer: null,
-      balloons: [],
-      scoreSavedThisRound: false
-    };
+    function updateModeBadge() {
+      modeBadge.textContent = getModeLabel();
+    }
 
     function shuffle(arr) {
       const copy = [...arr];
@@ -944,10 +1425,12 @@ const supabaseClient = supabase.createClient(
     }
 
     function pickQuestion() {
+      const words = getWords();
       return words[Math.floor(Math.random() * words.length)];
     }
 
     function getDistractors(correctEn, count = 6) {
+      const words = getWords();
       return shuffle(words.filter(w => w.en !== correctEn)).slice(0, count).map(w => w.en);
     }
 
@@ -962,6 +1445,7 @@ const supabaseClient = supabase.createClient(
       scoreValue.textContent = Math.round(GAME.score);
       timeValue.textContent = Math.max(0, GAME.timeLeft).toFixed(1);
       comboValue.textContent = `x${GAME.combo}`;
+      updateModeBadge();
 
       if (GAME.comboDeadline && GAME.running) {
         const remain = Math.max(0, (GAME.comboDeadline - performance.now()) / 1000);
@@ -1127,7 +1611,7 @@ const supabaseClient = supabase.createClient(
       btn.style.left = `${x}px`;
       btn.style.top = `${y}px`;
 
-      const balloonObj = { el: btn, x, y, vx: 0, vy: 0, w: balloonW, h: balloonH };
+      const balloonObj = { el: btn, x, y, w: balloonW, h: balloonH };
       GAME.balloons.push(balloonObj);
 
       btn.addEventListener('click', () => handleTap(btn));
@@ -1265,11 +1749,8 @@ const supabaseClient = supabase.createClient(
       updateHud();
     }
 
-    function animateBalloons() {
-      if (!GAME.running) return;
-    }
-
-    function startGame() {
+    function startGame(mode) {
+      currentMode = mode;
       ensureAudio();
       GAME.running = true;
       GAME.score = 0;
@@ -1283,26 +1764,40 @@ const supabaseClient = supabase.createClient(
       GAME.lastCountdownBeepSecond = null;
       GAME.scoreSavedThisRound = false;
       showComboPopup(0);
+      saveStatus.textContent = "";
 
-      startOverlay.classList.add('hidden');
+      menuOverlay.classList.add('hidden');
+      rankingOverlay.classList.add('hidden');
       resultOverlay.classList.add('hidden');
-      setFeedback('5秒以内の連続正解でコンボ継続', '');
+
+      setFeedback(`${getModeLabel()} モード開始`, '');
       renderQuestion();
       updateHud();
 
       clearInterval(GAME.tickTimer);
-      cancelAnimationFrame(GAME.animTimer);
       GAME.tickTimer = setInterval(tick, 100);
-      GAME.animTimer = requestAnimationFrame(animateBalloons);
     }
 
-    function renderRanking(data) {
-      if (!rankingList) return;
+    function backToMenu() {
+      GAME.running = false;
+      clearInterval(GAME.tickTimer);
+      showComboPopup(0);
+      menuOverlay.classList.remove('hidden');
+      rankingOverlay.classList.add('hidden');
+      resultOverlay.classList.add('hidden');
+      clearArena();
+      questionText.textContent = '準備OK？';
+      setFeedback('モードを選んでスタート');
+      updateHud();
+    }
 
-      const title = `<div class="ranking-title">🏆 Ranking</div>`;
+    function renderRanking(container, data, mode) {
+      if (!container) return;
+
+      const title = `<div class="ranking-title">🏆 ${getModeLabel(mode)} Ranking</div>`;
 
       if (!data || data.length === 0) {
-        rankingList.innerHTML = title + `<div class="ranking-empty">まだスコアがありません</div>`;
+        container.innerHTML = title + `<div class="ranking-empty">まだスコアがありません</div>`;
         return;
       }
 
@@ -1314,7 +1809,30 @@ const supabaseClient = supabase.createClient(
         </div>
       `).join("");
 
-      rankingList.innerHTML = title + rows;
+      container.innerHTML = title + rows;
+    }
+
+    function setRankingTabUI() {
+      rankingTabIelts.classList.toggle("active", rankingMode === "ielts");
+      rankingTabSystan.classList.toggle("active", rankingMode === "systan");
+    }
+
+    function dedupeRanking(rows) {
+      const bestMap = new Map();
+
+      rows.forEach(row => {
+        const key = (row.player_name || "NO NAME").trim();
+        const score = Number(row.score || 0);
+        const prev = bestMap.get(key);
+
+        if (!prev || score > Number(prev.score || 0)) {
+          bestMap.set(key, row);
+        }
+      });
+
+      return [...bestMap.values()]
+        .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
+        .slice(0, 10);
     }
 
     function escapeHtml(str) {
@@ -1326,64 +1844,75 @@ const supabaseClient = supabase.createClient(
         .replaceAll("'", "&#039;");
     }
 
-async function saveScore(finalScoreValue, accuracy) {
-  if (!supabaseClient || GAME.scoreSavedThisRound) return;
-
-  const input = prompt("名前を入力してください", localStorage.getItem("ielts_vocab_name") || "");
-  if (input === null) {
-    await loadRanking();
-    return;
-  }
-
-  const playerName = (input.trim() || "NO NAME").slice(0, 20);
-  localStorage.setItem("ielts_vocab_name", playerName);
-
-  const { data, error } = await supabaseClient.rpc("save_high_score", {
-    p_player_name: playerName,
-    p_score: finalScoreValue,
-    p_max_combo: GAME.maxCombo,
-    p_accuracy: accuracy
-  });
-
-  console.log("save_high_score data:", data);
-  console.log("save_high_score error:", error);
-
-  if (error) {
-    alert("save error: " + error.message);
-    console.error("save error:", error);
-  } else {
-    GAME.scoreSavedThisRound = true;
-    console.log("save success");
-  }
-}
-
-    async function loadRanking() {
+    async function loadRanking(mode = currentMode, target = rankingList) {
       if (!supabaseClient) {
-        renderRanking([]);
-        return;
+        renderRanking(target, [], mode);
+        return [];
       }
 
       const { data, error } = await supabaseClient
         .from("scores")
-        .select("player_name, score")
+        .select("id, player_name, score, mode")
+        .eq("mode", mode)
         .order("score", { ascending: false })
-        .limit(10);
+        .limit(200);
 
       if (error) {
         console.error("ranking load error:", error);
-        renderRanking([]);
-        return;
+        if (target === rankingScreenList) {
+          rankingStatus.textContent = "ランキング取得失敗";
+        }
+        renderRanking(target, [], mode);
+        return [];
       }
 
-      renderRanking(data);
+      const deduped = dedupeRanking(data || []);
+      renderRanking(target, deduped, mode);
+
+      if (target === rankingScreenList) {
+        rankingStatus.textContent = `${getModeLabel(mode)} の上位 ${deduped.length} 件`;
+      }
+      return deduped;
     }
 
+    async function openRankingScreen(mode = "ielts") {
+      rankingMode = mode;
+      setRankingTabUI();
+      rankingStatus.textContent = "読み込み中...";
+      menuOverlay.classList.add('hidden');
+      resultOverlay.classList.add('hidden');
+      rankingOverlay.classList.remove('hidden');
+      await loadRanking(rankingMode, rankingScreenList);
+    }
+
+  async function saveHighScore(finalScoreValue, accuracy) {
+  if (!supabaseClient || GAME.scoreSavedThisRound) return;
+
+  const input = prompt("名前を入力してください", localStorage.getItem("speed_vocab_name") || "");
+  if (input === null) return;
+
+  const playerName = (input.trim() || "NO NAME").slice(0, 20);
+  localStorage.setItem("speed_vocab_name", playerName);
+
+  const { error } = await supabaseClient.rpc("save_high_score", {
+    p_player_name: playerName,
+    p_score: finalScoreValue,
+    p_max_combo: GAME.maxCombo,
+    p_accuracy: accuracy,
+    p_mode: currentMode
+  });
+
+  if (error) {
+    console.error("save error:", error);
+  } else {
+    GAME.scoreSavedThisRound = true;
+  }
+}
+
     async function endGame() {
-    
       ensureAudio();
       GAME.running = false;
       clearInterval(GAME.tickTimer);
-      cancelAnimationFrame(GAME.animTimer);
       GAME.comboDeadline = null;
       showComboPopup(0);
       updateHud();
@@ -1404,14 +1933,21 @@ async function saveScore(finalScoreValue, accuracy) {
       finalMaxCombo.textContent = GAME.maxCombo;
       resultOverlay.classList.remove('hidden');
 
-      await saveScore(bonusScore, accuracy);
-      await loadRanking();
+      await saveHighScore(bonusScore, accuracy);
+      await loadRanking(currentMode, rankingList);
     }
 
-    startBtn.addEventListener('click', startGame);
-    retryBtn.addEventListener('click', startGame);
-    startOverlayBtn.addEventListener('click', startGame);
-    playAgainBtn.addEventListener('click', startGame);
+    startIeltsBtn.addEventListener('click', () => startGame("ielts"));
+    startSystanBtn.addEventListener('click', () => startGame("systan"));
+    playAgainBtn.addEventListener('click', () => startGame(currentMode));
+    retryBtn.addEventListener('click', () => startGame(currentMode));
+    menuBtn.addEventListener('click', backToMenu);
+    backToMenuBtn.addEventListener('click', backToMenu);
+
+    openRankingBtn.addEventListener('click', () => openRankingScreen("ielts"));
+    closeRankingBtn.addEventListener('click', backToMenu);
+    rankingTabIelts.addEventListener('click', () => openRankingScreen("ielts"));
+    rankingTabSystan.addEventListener('click', () => openRankingScreen("systan"));
 
     window.addEventListener('resize', () => {
       if (GAME.running) {
@@ -1419,7 +1955,8 @@ async function saveScore(finalScoreValue, accuracy) {
       }
     });
 
-    loadRanking();
+    updateModeBadge();
+    loadRanking("ielts", rankingScreenList);
   </script>
 </body>
 </html>
