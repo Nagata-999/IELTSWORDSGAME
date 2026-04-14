@@ -14,7 +14,6 @@
       --good: #22c55e;
       --bad: #ef4444;
       --warn: #f59e0b;
-      --bomb: #fb7185;
       --shadow: 0 10px 30px rgba(0,0,0,0.25);
     }
 
@@ -101,10 +100,10 @@
 
     .mode-badge {
       display: inline-block;
-      min-width: 64px;
+      min-width: 74px;
       padding: 3px 8px;
       border-radius: 999px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 900;
       letter-spacing: 0.02em;
       color: #082f49;
@@ -227,6 +226,10 @@
 
     .btn.green {
       background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+    }
+
+    .btn.orange {
+      background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
     }
 
     .btn.gold {
@@ -387,10 +390,12 @@
       display: flex;
       gap: 8px;
       margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
     .ranking-tab {
       flex: 1;
+      min-width: 90px;
       border: none;
       border-radius: 10px;
       padding: 10px 8px;
@@ -410,7 +415,7 @@
       grid-template-columns: 34px 1fr auto;
       gap: 8px;
       align-items: center;
-      padding: 6px 4px;
+      padding: 8px 4px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       font-size: 14px;
     }
@@ -419,20 +424,37 @@
       border-bottom: none;
     }
 
+    .ranking-row.rich {
+      align-items: start;
+    }
+
     .ranking-rank {
       font-weight: 900;
       color: #93c5fd;
+    }
+
+    .ranking-main {
+      min-width: 0;
     }
 
     .ranking-name {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .ranking-sub {
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.3;
     }
 
     .ranking-score {
       font-weight: 900;
       color: #f8fafc;
+      font-size: 18px;
     }
 
     .ranking-empty {
@@ -593,10 +615,11 @@
     <div class="overlay" id="menuOverlay">
       <div class="modal">
         <h1>やすし英単語</h1>
-        <p>スコア200以上で平常点↑↑、やすし超えは賞品あり</p>
+        <p>スコアで平常点↑↑、やすし超えは賞品</p>
         <div class="menu-btns">
           <button class="btn primary" id="startIeltsBtn">IELTS モード開始</button>
-          <button class="btn green" id="startSystanBtn">シス単モード開始</button>
+          <button class="btn green" id="startSystan3Btn">シス単 3章 モード開始</button>
+          <button class="btn orange" id="startSystan4Btn">シス単 4章 モード開始</button>
           <button class="btn gold" id="openRankingBtn">ランキング確認</button>
         </div>
         <p class="small" style="margin-top:12px;">同じ名前なら、そのモード内でハイスコアだけ残します。</p>
@@ -608,7 +631,8 @@
         <h2>Ranking</h2>
         <div class="ranking-tabs">
           <button class="ranking-tab active" id="rankingTabIelts">IELTS</button>
-          <button class="ranking-tab" id="rankingTabSystan">シス単</button>
+          <button class="ranking-tab" id="rankingTabSystan3">シス単3章</button>
+          <button class="ranking-tab" id="rankingTabSystan4">シス単4章</button>
         </div>
         <div id="rankingScreenList" class="ranking-box">
           <div class="ranking-title">🏆 Ranking</div>
@@ -672,7 +696,7 @@
     let currentMode = "ielts";
     let rankingMode = "ielts";
 
-    const IELTS_WORDS = [
+      const IELTS_WORDS = [
 { jp: "廃止（はいし）する", en: "abolish" },
 { jp: "曖昧（あいまい）さ", en: "ambiguity" },
 { jp: "確かめる（たしかめる）", en: "ascertain" },
@@ -785,7 +809,7 @@
 { jp: "根底（こんてい）にある", en: "underlying" }
 ];
 
-    const SYSTAN_WORDS = [
+    const SYSTAN3_WORDS = [
   
 { jp: "徹底的（てっていてき）に", en: "thoroughly" },
 { jp: "Aに服従（ふくじゅう）する、提出（ていしゅつ）する", en: "submit" },
@@ -1289,6 +1313,502 @@
 { jp: "経由（けいゆ）で", en: "via" },
 { jp: "のために", en: "owing" }
     ];
+    
+        const SYSTAN_WORDS4 = [
+        
+{ jp: "のために", en: "owing" },
+{ jp: "明らかにする", en: "clarify" },
+{ jp: "粉々に砕く", en: "smash" },
+{ jp: "悲しむ", en: "mourn" },
+{ jp: "呼ぶ", en: "summon" },
+{ jp: "粉々にする", en: "shatter" },
+{ jp: "残る", en: "linger" },
+{ jp: "嘆く", en: "lament" },
+{ jp: "恵まれる", en: "endowed" },
+{ jp: "喜ぶ", en: "rejoice" },
+{ jp: "配分する", en: "allocate" },
+{ jp: "ピシャリと打つ", en: "slap" },
+{ jp: "主張する", en: "contend" },
+{ jp: "誓う", en: "swear" },
+{ jp: "識別する", en: "discern" },
+{ jp: "悪化させる", en: "degrade" },
+{ jp: "築く", en: "erect" },
+{ jp: "証言する", en: "testify" },
+{ jp: "駆りたてる", en: "spur" },
+{ jp: "歩き回る", en: "roam" },
+{ jp: "まゆをひそめる", en: "frown" },
+{ jp: "呼び込む", en: "lure" },
+{ jp: "逆らう", en: "defy" },
+{ jp: "ぶらつく", en: "stroll" },
+{ jp: "がたがた鳴らす", en: "rattle" },
+{ jp: "調和させる", en: "reconcile" },
+{ jp: "ぼやかす", en: "blur" },
+{ jp: "なだめる", en: "soothe" },
+{ jp: "低下させる", en: "impair" },
+{ jp: "従う", en: "comply" },
+{ jp: "穴をあける", en: "pierce" },
+{ jp: "つまずく", en: "stumble" },
+{ jp: "さまたげる", en: "hinder" },
+{ jp: "あざける", en: "mock" },
+{ jp: "具現する", en: "embody" },
+{ jp: "忍び寄る", en: "stalk" },
+{ jp: "宣言する", en: "proclaim" },
+{ jp: "拍手する", en: "applaud" },
+{ jp: "与える", en: "inflict" },
+{ jp: "合併する", en: "merge" },
+{ jp: "避難した", en: "evacuated" },
+{ jp: "元に戻る", en: "undone" },
+{ jp: "突く", en: "poke" },
+{ jp: "つきまとわれる", en: "haunted" },
+{ jp: "固く守る", en: "adhere" },
+{ jp: "まとめる", en: "compile" },
+{ jp: "しぼむ", en: "wither" },
+{ jp: "びっくりさせる", en: "stun" },
+{ jp: "のどがつまる", en: "choke" },
+{ jp: "悪化する", en: "deteriorate" },
+{ jp: "捨てる", en: "dump" },
+{ jp: "つぶやく", en: "murmur" },
+{ jp: "削除する", en: "delete" },
+{ jp: "阻害する", en: "inhibit" },
+{ jp: "そらす", en: "divert" },
+{ jp: "飼いならす", en: "tame" },
+{ jp: "手に入れる", en: "reap" },
+{ jp: "断言する", en: "affirm" },
+{ jp: "浸る", en: "immersed" },
+{ jp: "期限が切れる", en: "expire" },
+{ jp: "乗り出す", en: "embark" },
+{ jp: "誓う", en: "vow" },
+{ jp: "予知する", en: "foresee" },
+{ jp: "崇拝する", en: "adore" },
+{ jp: "切望する", en: "yearn" },
+{ jp: "弱める", en: "undermine" },
+{ jp: "吸う", en: "suck" },
+{ jp: "誓う", en: "pledge" },
+{ jp: "立ち入る", en: "intrude" },
+{ jp: "訴える", en: "sue" },
+{ jp: "歪曲する", en: "distort" },
+{ jp: "消す", en: "extinguish" },
+{ jp: "説教する", en: "preach" },
+{ jp: "抑制する", en: "curb" },
+{ jp: "耐える", en: "withstand" },
+{ jp: "浸す", en: "dip" },
+{ jp: "暗唱する", en: "recite" },
+{ jp: "押し込む", en: "thrust" },
+{ jp: "嘆願する", en: "plead" },
+{ jp: "恥をかかせる", en: "humiliate" },
+{ jp: "放出する", en: "discharge" },
+{ jp: "非難する", en: "condemn" },
+{ jp: "検索する", en: "retrieve" },
+{ jp: "肩をすくめる", en: "shrug" },
+{ jp: "呼び起こす", en: "evoke" },
+{ jp: "取ってくる", en: "fetch" },
+{ jp: "お世辞を言う", en: "flatter" },
+
+{ jp: "散文", en: "prose" },
+{ jp: "織物", en: "textile" },
+{ jp: "材木", en: "timber" },
+{ jp: "傑作", en: "masterpiece" },
+{ jp: "暴動", en: "riot" },
+{ jp: "車両", en: "carriage" },
+{ jp: "装置", en: "apparatus" },
+{ jp: "大騒ぎ", en: "fuss" },
+{ jp: "欠乏", en: "deficiency" },
+{ jp: "相続人", en: "heir" },
+{ jp: "赤道", en: "equator" },
+{ jp: "石油", en: "petroleum" },
+{ jp: "魔女", en: "witch" },
+{ jp: "蒸気", en: "vapor" },
+{ jp: "探査機", en: "probe" },
+{ jp: "専門知識", en: "expertise" },
+{ jp: "軽蔑", en: "scorn" },
+{ jp: "預言者", en: "prophet" },
+{ jp: "そよ風", en: "breeze" },
+{ jp: "罪", en: "sin" },
+{ jp: "急増", en: "surge" },
+{ jp: "補うもの", en: "complement" },
+{ jp: "列", en: "queue" },
+{ jp: "賭け金", en: "stake" },
+{ jp: "大使", en: "ambassador" },
+{ jp: "陪審員", en: "jury" },
+{ jp: "集団", en: "cluster" },
+{ jp: "こぶ", en: "lump" },
+{ jp: "牧草地", en: "meadow" },
+{ jp: "偉業", en: "feat" },
+{ jp: "気質", en: "temperament" },
+{ jp: "寒気", en: "chill" },
+{ jp: "器具", en: "appliance" },
+{ jp: "前任者", en: "predecessor" },
+{ jp: "存在", en: "entity" },
+{ jp: "もてなし", en: "hospitality" },
+{ jp: "話", en: "narrative" },
+{ jp: "部分、区分", en: "segment" },
+{ jp: "大災害", en: "catastrophe" },
+{ jp: "君主、皇帝", en: "monarch" },
+{ jp: "制約", en: "constraint" },
+{ jp: "改正、修正", en: "amendment" },
+{ jp: "宇宙", en: "cosmos" },
+{ jp: "通路", en: "aisle" },
+{ jp: "階級制度", en: "hierarchy" },
+{ jp: "通行料", en: "toll" },
+{ jp: "取引", en: "transaction" },
+{ jp: "強盗", en: "burglar" },
+{ jp: "圧政", en: "tyranny" },
+{ jp: "寄生生物", en: "parasite" },
+{ jp: "直感", en: "intuition" },
+{ jp: "共産主義の", en: "communist" },
+{ jp: "遺産", en: "legacy" },
+{ jp: "静脈", en: "vein" },
+{ jp: "論説", en: "discourse" },
+
+{ jp: "乳製品、酪農", en: "dairy" },
+{ jp: "工芸品", en: "artifact" },
+{ jp: "はけ口", en: "outlet" },
+{ jp: "不安", en: "apprehension" },
+{ jp: "憂うつ", en: "melancholy" },
+{ jp: "目新しさ", en: "novelty" },
+{ jp: "標本", en: "specimen" },
+{ jp: "衛生", en: "hygiene" },
+{ jp: "戦術", en: "tactics" },
+{ jp: "独占", en: "monopoly" },
+{ jp: "印", en: "token" },
+{ jp: "貴族階級", en: "aristocracy" },
+{ jp: "復讐", en: "revenge" },
+{ jp: "活動家", en: "activist" },
+{ jp: "美辞麗句", en: "rhetoric" },
+{ jp: "起業家", en: "entrepreneur" },
+{ jp: "国勢調査", en: "census" },
+{ jp: "瀬戸際", en: "verge" },
+{ jp: "出現、到来", en: "advent" },
+{ jp: "類似点", en: "analogy" },
+{ jp: "灌漑", en: "irrigation" },
+{ jp: "報道", en: "coverage" },
+{ jp: "料理", en: "cuisine" },
+{ jp: "脅威", en: "menace" },
+{ jp: "危険", en: "peril" },
+{ jp: "手足", en: "limb" },
+{ jp: "攻撃", en: "assault" },
+{ jp: "憎しみ", en: "hatred" },
+{ jp: "自主性", en: "autonomy" },
+{ jp: "塾", en: "cram" },
+{ jp: "補助金", en: "subsidy" },
+{ jp: "共感", en: "empathy" },
+{ jp: "俗語", en: "slang" },
+{ jp: "姿勢", en: "posture" },
+{ jp: "イデオロギー", en: "ideology" },
+{ jp: "災いのもと", en: "curse" },
+{ jp: "腫瘍", en: "tumor" },
+{ jp: "交差点", en: "intersection" },
+{ jp: "期間", en: "duration" },
+{ jp: "森林破壊", en: "deforestation" },
+{ jp: "用心", en: "precaution" },
+{ jp: "ひとたばの", en: "bunch" },
+{ jp: "欠点", en: "shortcoming" },
+{ jp: "熱望", en: "aspiration" },
+{ jp: "精神科医", en: "psychiatrist" },
+{ jp: "発送", en: "shipping" },
+{ jp: "上院議員", en: "senator" },
+{ jp: "政治家", en: "statesman" },
+{ jp: "部下", en: "subordinate" },
+{ jp: "空白", en: "vacuum" },
+{ jp: "探究", en: "quest" },
+{ jp: "瞑想", en: "meditation" },
+{ jp: "加入者", en: "subscriber" },
+{ jp: "謎", en: "riddle" },
+{ jp: "ぼろ", en: "rag" },
+{ jp: "さび", en: "rust" },
+{ jp: "衛生", en: "sanitation" },
+{ jp: "まっただ中", en: "midst" },
+{ jp: "いたずら", en: "mischief" },
+
+{ jp: "検定", en: "proficiency" },
+{ jp: "記憶", en: "recollection" },
+{ jp: "緯", en: "latitude" },
+{ jp: "摩擦", en: "friction" },
+{ jp: "植物学者", en: "botanist" },
+{ jp: "遺伝", en: "heredity" },
+{ jp: "軽蔑", en: "contempt" },
+{ jp: "構造", en: "anatomy" },
+{ jp: "誠実", en: "integrity" },
+{ jp: "貨物", en: "cargo" },
+{ jp: "わいろ", en: "bribe" },
+{ jp: "噴火", en: "eruption" },
+{ jp: "葬式", en: "funeral" },
+{ jp: "赤字", en: "deficit" },
+{ jp: "大部分", en: "bulk" },
+{ jp: "百万長者", en: "millionaire" },
+{ jp: "灰", en: "ash" },
+{ jp: "領域", en: "realm" },
+{ jp: "農園", en: "plantation" },
+{ jp: "すき", en: "plow" },
+{ jp: "販売", en: "vending" },
+{ jp: "孤児", en: "orphan" },
+{ jp: "神経細胞", en: "neuron" },
+{ jp: "植生", en: "vegetation" },
+{ jp: "戦士", en: "warrior" },
+{ jp: "突然変異", en: "mutation" },
+{ jp: "下水", en: "sewage" },
+{ jp: "理論的枠組", en: "paradigm" },
+{ jp: "議定書", en: "protocol" },
+{ jp: "高層ビル", en: "skyscraper" },
+{ jp: "一致", en: "accord" },
+{ jp: "官僚", en: "bureaucrat" },
+{ jp: "多彩", en: "array" },
+{ jp: "衝突", en: "clash" },
+{ jp: "拷問", en: "torture" },
+{ jp: "統治", en: "reign" },
+{ jp: "論文", en: "thesis" },
+{ jp: "桁", en: "digit" },
+{ jp: "課題", en: "agenda" },
+{ jp: "発症", en: "onset" }
+
+        ];
+
+    const SYSTAN4_WORDS = [
+{ jp: "のために", en: "owing" },
+{ jp: "明らかにする", en: "clarify" },
+{ jp: "粉々に砕く", en: "smash" },
+{ jp: "悲しむ", en: "mourn" },
+{ jp: "呼ぶ", en: "summon" },
+{ jp: "粉々にする", en: "shatter" },
+{ jp: "残る", en: "linger" },
+{ jp: "嘆く", en: "lament" },
+{ jp: "恵まれる", en: "endowed" },
+{ jp: "喜ぶ", en: "rejoice" },
+{ jp: "配分する", en: "allocate" },
+{ jp: "ピシャリと打つ", en: "slap" },
+{ jp: "主張する", en: "contend" },
+{ jp: "誓う", en: "swear" },
+{ jp: "識別する", en: "discern" },
+{ jp: "悪化させる", en: "degrade" },
+{ jp: "築く", en: "erect" },
+{ jp: "証言する", en: "testify" },
+{ jp: "駆りたてる", en: "spur" },
+{ jp: "歩き回る", en: "roam" },
+{ jp: "まゆをひそめる", en: "frown" },
+{ jp: "呼び込む", en: "lure" },
+{ jp: "逆らう", en: "defy" },
+{ jp: "ぶらつく", en: "stroll" },
+{ jp: "がたがた鳴らす", en: "rattle" },
+{ jp: "調和させる", en: "reconcile" },
+{ jp: "ぼやかす", en: "blur" },
+{ jp: "なだめる", en: "soothe" },
+{ jp: "低下させる", en: "impair" },
+{ jp: "従う", en: "comply" },
+{ jp: "穴をあける", en: "pierce" },
+{ jp: "つまずく", en: "stumble" },
+{ jp: "さまたげる", en: "hinder" },
+{ jp: "あざける", en: "mock" },
+{ jp: "具現する", en: "embody" },
+{ jp: "忍び寄る", en: "stalk" },
+{ jp: "宣言する", en: "proclaim" },
+{ jp: "拍手する", en: "applaud" },
+{ jp: "与える", en: "inflict" },
+{ jp: "合併する", en: "merge" },
+{ jp: "避難した", en: "evacuated" },
+{ jp: "元に戻る", en: "undone" },
+{ jp: "突く", en: "poke" },
+{ jp: "つきまとわれる", en: "haunted" },
+{ jp: "固く守る", en: "adhere" },
+{ jp: "まとめる", en: "compile" },
+{ jp: "しぼむ", en: "wither" },
+{ jp: "びっくりさせる", en: "stun" },
+{ jp: "のどがつまる", en: "choke" },
+{ jp: "悪化する", en: "deteriorate" },
+{ jp: "捨てる", en: "dump" },
+{ jp: "つぶやく", en: "murmur" },
+{ jp: "削除する", en: "delete" },
+{ jp: "阻害する", en: "inhibit" },
+{ jp: "そらす", en: "divert" },
+{ jp: "飼いならす", en: "tame" },
+{ jp: "手に入れる", en: "reap" },
+{ jp: "断言する", en: "affirm" },
+{ jp: "浸る", en: "immersed" },
+{ jp: "期限が切れる", en: "expire" },
+{ jp: "乗り出す", en: "embark" },
+{ jp: "誓う", en: "vow" },
+{ jp: "予知する", en: "foresee" },
+{ jp: "崇拝する", en: "adore" },
+{ jp: "切望する", en: "yearn" },
+{ jp: "弱める", en: "undermine" },
+{ jp: "吸う", en: "suck" },
+{ jp: "誓う", en: "pledge" },
+{ jp: "立ち入る", en: "intrude" },
+{ jp: "訴える", en: "sue" },
+{ jp: "歪曲する", en: "distort" },
+{ jp: "消す", en: "extinguish" },
+{ jp: "説教する", en: "preach" },
+{ jp: "抑制する", en: "curb" },
+{ jp: "耐える", en: "withstand" },
+{ jp: "浸す", en: "dip" },
+{ jp: "暗唱する", en: "recite" },
+{ jp: "押し込む", en: "thrust" },
+{ jp: "嘆願する", en: "plead" },
+{ jp: "恥をかかせる", en: "humiliate" },
+{ jp: "放出する", en: "discharge" },
+{ jp: "非難する", en: "condemn" },
+{ jp: "検索する", en: "retrieve" },
+{ jp: "肩をすくめる", en: "shrug" },
+{ jp: "呼び起こす", en: "evoke" },
+{ jp: "取ってくる", en: "fetch" },
+{ jp: "お世辞を言う", en: "flatter" },
+
+{ jp: "散文", en: "prose" },
+{ jp: "織物", en: "textile" },
+{ jp: "材木", en: "timber" },
+{ jp: "傑作", en: "masterpiece" },
+{ jp: "暴動", en: "riot" },
+{ jp: "車両", en: "carriage" },
+{ jp: "装置", en: "apparatus" },
+{ jp: "大騒ぎ", en: "fuss" },
+{ jp: "欠乏", en: "deficiency" },
+{ jp: "相続人", en: "heir" },
+{ jp: "赤道", en: "equator" },
+{ jp: "石油", en: "petroleum" },
+{ jp: "魔女", en: "witch" },
+{ jp: "蒸気", en: "vapor" },
+{ jp: "探査機", en: "probe" },
+{ jp: "専門知識", en: "expertise" },
+{ jp: "軽蔑", en: "scorn" },
+{ jp: "預言者", en: "prophet" },
+{ jp: "そよ風", en: "breeze" },
+{ jp: "罪", en: "sin" },
+{ jp: "急増", en: "surge" },
+{ jp: "補うもの", en: "complement" },
+{ jp: "列", en: "queue" },
+{ jp: "賭け金", en: "stake" },
+{ jp: "大使", en: "ambassador" },
+{ jp: "陪審員", en: "jury" },
+{ jp: "集団", en: "cluster" },
+{ jp: "こぶ", en: "lump" },
+{ jp: "牧草地", en: "meadow" },
+{ jp: "偉業", en: "feat" },
+{ jp: "気質", en: "temperament" },
+{ jp: "寒気", en: "chill" },
+{ jp: "器具", en: "appliance" },
+{ jp: "前任者", en: "predecessor" },
+{ jp: "存在", en: "entity" },
+{ jp: "もてなし", en: "hospitality" },
+{ jp: "話", en: "narrative" },
+{ jp: "部分、区分", en: "segment" },
+{ jp: "大災害", en: "catastrophe" },
+{ jp: "君主、皇帝", en: "monarch" },
+{ jp: "制約", en: "constraint" },
+{ jp: "改正、修正", en: "amendment" },
+{ jp: "宇宙", en: "cosmos" },
+{ jp: "通路", en: "aisle" },
+{ jp: "階級制度", en: "hierarchy" },
+{ jp: "通行料", en: "toll" },
+{ jp: "取引", en: "transaction" },
+{ jp: "強盗", en: "burglar" },
+{ jp: "圧政", en: "tyranny" },
+{ jp: "寄生生物", en: "parasite" },
+{ jp: "直感", en: "intuition" },
+{ jp: "共産主義の", en: "communist" },
+{ jp: "遺産", en: "legacy" },
+{ jp: "静脈", en: "vein" },
+{ jp: "論説", en: "discourse" },
+
+{ jp: "乳製品、酪農", en: "dairy" },
+{ jp: "工芸品", en: "artifact" },
+{ jp: "はけ口", en: "outlet" },
+{ jp: "不安", en: "apprehension" },
+{ jp: "憂うつ", en: "melancholy" },
+{ jp: "目新しさ", en: "novelty" },
+{ jp: "標本", en: "specimen" },
+{ jp: "衛生", en: "hygiene" },
+{ jp: "戦術", en: "tactics" },
+{ jp: "独占", en: "monopoly" },
+{ jp: "印", en: "token" },
+{ jp: "貴族階級", en: "aristocracy" },
+{ jp: "復讐", en: "revenge" },
+{ jp: "活動家", en: "activist" },
+{ jp: "美辞麗句", en: "rhetoric" },
+{ jp: "起業家", en: "entrepreneur" },
+{ jp: "国勢調査", en: "census" },
+{ jp: "瀬戸際", en: "verge" },
+{ jp: "出現、到来", en: "advent" },
+{ jp: "類似点", en: "analogy" },
+{ jp: "灌漑", en: "irrigation" },
+{ jp: "報道", en: "coverage" },
+{ jp: "料理", en: "cuisine" },
+{ jp: "脅威", en: "menace" },
+{ jp: "危険", en: "peril" },
+{ jp: "手足", en: "limb" },
+{ jp: "攻撃", en: "assault" },
+{ jp: "憎しみ", en: "hatred" },
+{ jp: "自主性", en: "autonomy" },
+{ jp: "塾", en: "cram" },
+{ jp: "補助金", en: "subsidy" },
+{ jp: "共感", en: "empathy" },
+{ jp: "俗語", en: "slang" },
+{ jp: "姿勢", en: "posture" },
+{ jp: "イデオロギー", en: "ideology" },
+{ jp: "災いのもと", en: "curse" },
+{ jp: "腫瘍", en: "tumor" },
+{ jp: "交差点", en: "intersection" },
+{ jp: "期間", en: "duration" },
+{ jp: "森林破壊", en: "deforestation" },
+{ jp: "用心", en: "precaution" },
+{ jp: "ひとたばの", en: "bunch" },
+{ jp: "欠点", en: "shortcoming" },
+{ jp: "熱望", en: "aspiration" },
+{ jp: "精神科医", en: "psychiatrist" },
+{ jp: "発送", en: "shipping" },
+{ jp: "上院議員", en: "senator" },
+{ jp: "政治家", en: "statesman" },
+{ jp: "部下", en: "subordinate" },
+{ jp: "空白", en: "vacuum" },
+{ jp: "探究", en: "quest" },
+{ jp: "瞑想", en: "meditation" },
+{ jp: "加入者", en: "subscriber" },
+{ jp: "謎", en: "riddle" },
+{ jp: "ぼろ", en: "rag" },
+{ jp: "さび", en: "rust" },
+{ jp: "衛生", en: "sanitation" },
+{ jp: "まっただ中", en: "midst" },
+{ jp: "いたずら", en: "mischief" },
+
+{ jp: "検定", en: "proficiency" },
+{ jp: "記憶", en: "recollection" },
+{ jp: "緯", en: "latitude" },
+{ jp: "摩擦", en: "friction" },
+{ jp: "植物学者", en: "botanist" },
+{ jp: "遺伝", en: "heredity" },
+{ jp: "軽蔑", en: "contempt" },
+{ jp: "構造", en: "anatomy" },
+{ jp: "誠実", en: "integrity" },
+{ jp: "貨物", en: "cargo" },
+{ jp: "わいろ", en: "bribe" },
+{ jp: "噴火", en: "eruption" },
+{ jp: "葬式", en: "funeral" },
+{ jp: "赤字", en: "deficit" },
+{ jp: "大部分", en: "bulk" },
+{ jp: "百万長者", en: "millionaire" },
+{ jp: "灰", en: "ash" },
+{ jp: "領域", en: "realm" },
+{ jp: "農園", en: "plantation" },
+{ jp: "すき", en: "plow" },
+{ jp: "販売", en: "vending" },
+{ jp: "孤児", en: "orphan" },
+{ jp: "神経細胞", en: "neuron" },
+{ jp: "植生", en: "vegetation" },
+{ jp: "戦士", en: "warrior" },
+{ jp: "突然変異", en: "mutation" },
+{ jp: "下水", en: "sewage" },
+{ jp: "理論的枠組", en: "paradigm" },
+{ jp: "議定書", en: "protocol" },
+{ jp: "高層ビル", en: "skyscraper" },
+{ jp: "一致", en: "accord" },
+{ jp: "官僚", en: "bureaucrat" },
+{ jp: "多彩", en: "array" },
+{ jp: "衝突", en: "clash" },
+{ jp: "拷問", en: "torture" },
+{ jp: "統治", en: "reign" },
+{ jp: "論文", en: "thesis" },
+{ jp: "桁", en: "digit" },
+{ jp: "課題", en: "agenda" },
+{ jp: "発症", en: "onset" }
+];
 
     const scoreValue = document.getElementById('scoreValue');
     const timeValue = document.getElementById('timeValue');
@@ -1306,11 +1826,14 @@
     const menuBtn = document.getElementById('menuBtn');
     const retryBtn = document.getElementById('retryBtn');
     const startIeltsBtn = document.getElementById('startIeltsBtn');
-    const startSystanBtn = document.getElementById('startSystanBtn');
+    const startSystan3Btn = document.getElementById('startSystan3Btn');
+    const startSystan4Btn = document.getElementById('startSystan4Btn');
     const openRankingBtn = document.getElementById('openRankingBtn');
     const closeRankingBtn = document.getElementById('closeRankingBtn');
+
     const rankingTabIelts = document.getElementById('rankingTabIelts');
-    const rankingTabSystan = document.getElementById('rankingTabSystan');
+    const rankingTabSystan3 = document.getElementById('rankingTabSystan3');
+    const rankingTabSystan4 = document.getElementById('rankingTabSystan4');
 
     const finalScore = document.getElementById('finalScore');
     const finalAccuracy = document.getElementById('finalAccuracy');
@@ -1374,41 +1897,34 @@
       osc.stop(now + duration + 0.02);
     }
 
-    function soundCorrect() {
-      playTone(740, 0.08, 'triangle', 0.05, 880);
-    }
-
+    function soundCorrect() { playTone(740, 0.08, 'triangle', 0.05, 880); }
     function soundCombo(combo) {
       if (combo < 2) return;
       playTone(880, 0.06, 'triangle', 0.045, 1175);
       setTimeout(() => playTone(1175, 0.06, 'triangle', 0.04, 1480), 55);
     }
-
-    function soundWrong() {
-      playTone(220, 0.12, 'sawtooth', 0.04, 160);
-    }
-
+    function soundWrong() { playTone(220, 0.12, 'sawtooth', 0.04, 160); }
     function soundBomb() {
       playTone(180, 0.16, 'square', 0.05, 80);
       setTimeout(() => playTone(120, 0.18, 'sawtooth', 0.04, 60), 70);
     }
-
-    function soundCountdown() {
-      playTone(980, 0.05, 'square', 0.025);
-    }
-
+    function soundCountdown() { playTone(980, 0.05, 'square', 0.025); }
     function soundGameOver() {
       playTone(523, 0.10, 'triangle', 0.04, 659);
       setTimeout(() => playTone(659, 0.10, 'triangle', 0.04, 784), 90);
       setTimeout(() => playTone(784, 0.14, 'triangle', 0.045, 988), 180);
     }
 
-    function getWords() {
-      return currentMode === "systan" ? SYSTAN_WORDS : IELTS_WORDS;
+    function getWords(mode = currentMode) {
+      if (mode === "systan3") return SYSTAN3_WORDS;
+      if (mode === "systan4") return SYSTAN4_WORDS;
+      return IELTS_WORDS;
     }
 
     function getModeLabel(mode = currentMode) {
-      return mode === "systan" ? "シス単" : "IELTS";
+      if (mode === "systan3") return "シス単3章";
+      if (mode === "systan4") return "シス単4章";
+      return "IELTS";
     }
 
     function updateModeBadge() {
@@ -1467,12 +1983,10 @@
 
     function showComboPopup(combo) {
       comboPopup.classList.remove('show');
-
       if (combo < 2) {
         comboPopup.style.opacity = '0';
         return;
       }
-
       comboPopup.textContent = `${combo} COMBO!`;
       void comboPopup.offsetWidth;
       comboPopup.classList.add('show');
@@ -1487,7 +2001,6 @@
     function createBurstEffect(targetEl) {
       const rect = targetEl.getBoundingClientRect();
       const arenaRect = arena.getBoundingClientRect();
-
       const burst = document.createElement('div');
       burst.className = 'pop-burst';
 
@@ -1525,11 +2038,8 @@
 
     function removeBalloon(button) {
       GAME.balloons = GAME.balloons.filter(b => b.el !== button);
-
       setTimeout(() => {
-        if (button && button.parentNode) {
-          button.remove();
-        }
+        if (button && button.parentNode) button.remove();
       }, 520);
     }
 
@@ -1557,24 +2067,12 @@
       const cellH = arenaRect.height / Math.max(rows, 3);
 
       let minX = Math.max(padding, col * cellW + 6);
-      let maxX = Math.min(
-        arenaRect.width - balloonW - padding,
-        (col + 1) * cellW - balloonW - 6
-      );
+      let maxX = Math.min(arenaRect.width - balloonW - padding, (col + 1) * cellW - balloonW - 6);
       let minY = Math.max(padding, row * cellH + 6);
-      let maxY = Math.min(
-        arenaRect.height - balloonH - padding,
-        (row + 1) * cellH - balloonH - 6
-      );
+      let maxY = Math.min(arenaRect.height - balloonH - padding, (row + 1) * cellH - balloonH - 6);
 
-      if (maxX < minX) {
-        minX = Math.max(padding, Math.min(minX, arenaRect.width - balloonW - padding));
-        maxX = minX;
-      }
-      if (maxY < minY) {
-        minY = Math.max(padding, Math.min(minY, arenaRect.height - balloonH - padding));
-        maxY = minY;
-      }
+      if (maxX < minX) { minX = Math.max(padding, Math.min(minX, arenaRect.width - balloonW - padding)); maxX = minX; }
+      if (maxY < minY) { minY = Math.max(padding, Math.min(minY, arenaRect.height - balloonH - padding)); maxY = minY; }
 
       let x = minX;
       let y = minY;
@@ -1613,20 +2111,28 @@
 
       const balloonObj = { el: btn, x, y, w: balloonW, h: balloonH };
       GAME.balloons.push(balloonObj);
-
       btn.addEventListener('click', () => handleTap(btn));
     }
 
     function renderQuestion() {
       clearArena();
+      const words = getWords();
+
+      if (!words.length) {
+        questionText.textContent = "単語未設定";
+        setFeedback(`${getModeLabel()} の単語を追加してください`, 'warn');
+        return;
+      }
+
       GAME.currentQuestion = pickQuestion();
       questionText.textContent = GAME.currentQuestion.jp;
       GAME.questionLocked = false;
       GAME.lastCountdownBeepSecond = null;
 
+      const distractorCount = Math.min(6, Math.max(0, words.length - 1));
       const choices = shuffle([
         GAME.currentQuestion.en,
-        ...getDistractors(GAME.currentQuestion.en, 6),
+        ...getDistractors(GAME.currentQuestion.en, distractorCount),
         '__BOMB__'
       ]);
 
@@ -1645,10 +2151,7 @@
       GAME.comboDeadline = now + 5000;
       if (GAME.combo > GAME.maxCombo) GAME.maxCombo = GAME.combo;
       showComboPopup(GAME.combo);
-
-      if (GAME.combo >= 5) {
-        triggerFlash();
-      }
+      if (GAME.combo >= 5) triggerFlash();
     }
 
     function handleTap(button) {
@@ -1660,7 +2163,6 @@
       if (type === 'correct') {
         GAME.questionLocked = true;
         GAME.attemptCount += 1;
-
         ensureAudio();
         GAME.correctCount += 1;
         handleComboOnCorrect(now);
@@ -1674,7 +2176,6 @@
         setFeedback(`Nice! +${gained}点 / Combo x${GAME.combo}`, 'good');
         soundCorrect();
         soundCombo(GAME.combo);
-
         updateHud();
 
         setTimeout(() => {
@@ -1684,7 +2185,6 @@
 
       } else if (type === 'bomb') {
         GAME.attemptCount += 1;
-
         ensureAudio();
         GAME.combo = 0;
         GAME.comboDeadline = null;
@@ -1703,7 +2203,6 @@
 
       } else {
         GAME.attemptCount += 1;
-
         ensureAudio();
         GAME.combo = 0;
         GAME.comboDeadline = null;
@@ -1793,7 +2292,6 @@
 
     function renderRanking(container, data, mode) {
       if (!container) return;
-
       const title = `<div class="ranking-title">🏆 ${getModeLabel(mode)} Ranking</div>`;
 
       if (!data || data.length === 0) {
@@ -1802,9 +2300,14 @@
       }
 
       const rows = data.map((d, i) => `
-        <div class="ranking-row">
+        <div class="ranking-row rich">
           <div class="ranking-rank">${i + 1}.</div>
-          <div class="ranking-name">${escapeHtml(d.player_name || "NO NAME")}</div>
+          <div class="ranking-main">
+            <div class="ranking-name">${escapeHtml(d.player_name || "NO NAME")}</div>
+            <div class="ranking-sub">
+              Combo: ${Number(d.max_combo ?? 0)} / Acc: ${Number(d.accuracy ?? 0)}%
+            </div>
+          </div>
           <div class="ranking-score">${Number(d.score ?? 0)}</div>
         </div>
       `).join("");
@@ -1812,16 +2315,11 @@
       container.innerHTML = title + rows;
     }
 
-    function setRankingTabUI() {
-      rankingTabIelts.classList.toggle("active", rankingMode === "ielts");
-      rankingTabSystan.classList.toggle("active", rankingMode === "systan");
-    }
-
     function dedupeRanking(rows) {
       const bestMap = new Map();
 
       rows.forEach(row => {
-        const key = (row.player_name || "NO NAME").trim();
+        const key = `${(row.player_name || "NO NAME").trim()}__${row.mode || ""}`;
         const score = Number(row.score || 0);
         const prev = bestMap.get(key);
 
@@ -1844,6 +2342,12 @@
         .replaceAll("'", "&#039;");
     }
 
+    function setRankingTabUI() {
+      rankingTabIelts.classList.toggle("active", rankingMode === "ielts");
+      rankingTabSystan3.classList.toggle("active", rankingMode === "systan3");
+      rankingTabSystan4.classList.toggle("active", rankingMode === "systan4");
+    }
+
     async function loadRanking(mode = currentMode, target = rankingList) {
       if (!supabaseClient) {
         renderRanking(target, [], mode);
@@ -1852,16 +2356,14 @@
 
       const { data, error } = await supabaseClient
         .from("scores")
-        .select("id, player_name, score, mode")
+        .select("id, player_name, score, max_combo, accuracy, mode")
         .eq("mode", mode)
         .order("score", { ascending: false })
         .limit(200);
 
       if (error) {
         console.error("ranking load error:", error);
-        if (target === rankingScreenList) {
-          rankingStatus.textContent = "ランキング取得失敗";
-        }
+        if (target === rankingScreenList) rankingStatus.textContent = "ランキング取得失敗";
         renderRanking(target, [], mode);
         return [];
       }
@@ -1885,29 +2387,36 @@
       await loadRanking(rankingMode, rankingScreenList);
     }
 
-  async function saveHighScore(finalScoreValue, accuracy) {
-  if (!supabaseClient || GAME.scoreSavedThisRound) return;
+    async function saveHighScore(finalScoreValue, accuracy) {
+      if (!supabaseClient || GAME.scoreSavedThisRound) return;
 
-  const input = prompt("名前を入力してください", localStorage.getItem("speed_vocab_name") || "");
-  if (input === null) return;
+      const input = prompt("名前を入力してください", localStorage.getItem("speed_vocab_name") || "");
+      if (input === null) {
+        saveStatus.textContent = "保存をスキップしました";
+        await loadRanking(currentMode, rankingList);
+        return;
+      }
 
-  const playerName = (input.trim() || "NO NAME").slice(0, 20);
-  localStorage.setItem("speed_vocab_name", playerName);
+      const playerName = (input.trim() || "NO NAME").slice(0, 20);
+      localStorage.setItem("speed_vocab_name", playerName);
+      saveStatus.textContent = "保存中...";
 
-  const { error } = await supabaseClient.rpc("save_high_score", {
-    p_player_name: playerName,
-    p_score: finalScoreValue,
-    p_max_combo: GAME.maxCombo,
-    p_accuracy: accuracy,
-    p_mode: currentMode
-  });
+      const { error } = await supabaseClient.rpc("save_high_score", {
+        p_player_name: playerName,
+        p_score: finalScoreValue,
+        p_max_combo: GAME.maxCombo,
+        p_accuracy: accuracy,
+        p_mode: currentMode
+      });
 
-  if (error) {
-    console.error("save error:", error);
-  } else {
-    GAME.scoreSavedThisRound = true;
-  }
-}
+      if (error) {
+        console.error("save error:", error);
+        saveStatus.textContent = "保存失敗: " + error.message;
+      } else {
+        GAME.scoreSavedThisRound = true;
+        saveStatus.textContent = `${playerName} の記録を保存しました`;
+      }
+    }
 
     async function endGame() {
       ensureAudio();
@@ -1938,21 +2447,24 @@
     }
 
     startIeltsBtn.addEventListener('click', () => startGame("ielts"));
-    startSystanBtn.addEventListener('click', () => startGame("systan"));
+    startSystan3Btn.addEventListener('click', () => startGame("systan3"));
+    startSystan4Btn.addEventListener('click', () => startGame("systan4"));
+
     playAgainBtn.addEventListener('click', () => startGame(currentMode));
     retryBtn.addEventListener('click', () => startGame(currentMode));
+
     menuBtn.addEventListener('click', backToMenu);
     backToMenuBtn.addEventListener('click', backToMenu);
 
     openRankingBtn.addEventListener('click', () => openRankingScreen("ielts"));
     closeRankingBtn.addEventListener('click', backToMenu);
+
     rankingTabIelts.addEventListener('click', () => openRankingScreen("ielts"));
-    rankingTabSystan.addEventListener('click', () => openRankingScreen("systan"));
+    rankingTabSystan3.addEventListener('click', () => openRankingScreen("systan3"));
+    rankingTabSystan4.addEventListener('click', () => openRankingScreen("systan4"));
 
     window.addEventListener('resize', () => {
-      if (GAME.running) {
-        renderQuestion();
-      }
+      if (GAME.running) renderQuestion();
     });
 
     updateModeBadge();
