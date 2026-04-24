@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
+<audio id="bgm" src="music.mp3" loop></audio>
+<audio id="correctSound" src="correct.mp3"></audio>
+<audio id="wrongSound" src="wrong.mp3"></audio>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -1810,6 +1813,17 @@
 { jp: "発症", en: "onset" }
 ];
 
+const bgm = document.getElementById("bgm");
+const correctSound = document.getElementById("correctSound");
+const wrongSound = document.getElementById("wrongSound");
+
+function startBGM() {
+  if (bgm.paused) {
+    bgm.volume = 0.35;
+    bgm.currentTime = 0;
+    bgm.play();
+  }
+}
     const scoreValue = document.getElementById('scoreValue');
     const timeValue = document.getElementById('timeValue');
     const comboValue = document.getElementById('comboValue');
@@ -2446,9 +2460,18 @@
       await loadRanking(currentMode, rankingList);
     }
 
-    startIeltsBtn.addEventListener('click', () => startGame("ielts"));
-    startSystan3Btn.addEventListener('click', () => startGame("systan3"));
-    startSystan4Btn.addEventListener('click', () => startGame("systan4"));
+   startIeltsBtn.addEventListener("click", () => {
+  startBGM(); // ←追加
+  startGame("ielts");
+});
+   startSystan3Btn.addEventListener("click", () => {
+  startBGM();
+  startGame("systan3");
+});
+    startSystan4Btn.addEventListener("click", () => {
+  startBGM();
+  startGame("systan4");
+});
 
     playAgainBtn.addEventListener('click', () => startGame(currentMode));
     retryBtn.addEventListener('click', () => startGame(currentMode));
