@@ -782,6 +782,8 @@
     </div>
   </div>
 
+  <audio id="bgm" src="music.mp3" loop preload="auto"></audio>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://ykrjocftuflnkubaxrza.supabase.co";
@@ -1953,6 +1955,26 @@
     const playAgainBtn = document.getElementById('playAgainBtn');
     const backToMenuBtn = document.getElementById('backToMenuBtn');
 
+    const bgm = document.getElementById('bgm');
+
+    function startBGM() {
+      if (!bgm) return;
+      bgm.volume = 0.35;
+      bgm.currentTime = 0;
+      const playPromise = bgm.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(err => {
+          console.warn('BGM play was blocked or failed:', err);
+        });
+      }
+    }
+
+    function stopBGM() {
+      if (!bgm) return;
+      bgm.pause();
+      bgm.currentTime = 0;
+    }
+
     const GAME = {
       lastCountdownBeepSecond: null,
       running: false,
@@ -2427,6 +2449,7 @@
     function startGame(mode) {
       currentMode = mode;
       ensureAudio();
+      startBGM();
       GAME.running = true;
       GAME.score = 0;
       GAME.timeLeft = 30;
@@ -2459,6 +2482,7 @@
     function backToMenu() {
       GAME.running = false;
       clearInterval(GAME.tickTimer);
+      stopBGM();
       showComboPopup(0);
       menuOverlay.classList.remove('hidden');
       rankingOverlay.classList.add('hidden');
@@ -2607,6 +2631,7 @@
       questionText.textContent = '終了！';
       setFeedback('おつかれさま。結果を確認しよう。');
       soundGameOver();
+      stopBGM();
 
       const accuracy = GAME.attemptCount
         ? Math.round((GAME.correctCount / GAME.attemptCount) * 100)
