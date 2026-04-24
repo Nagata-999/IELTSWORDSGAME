@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html lang="ja">
-<audio id="bgm" src="music.mp3" loop></audio>
-<audio id="correctSound" src="correct.mp3"></audio>
-<audio id="wrongSound" src="wrong.mp3"></audio>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -475,6 +472,92 @@
       text-align: center;
     }
 
+
+    .word-history-box {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      text-align: left;
+    }
+
+    .word-history-title {
+      font-size: 16px;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 10px;
+      color: #fef08a;
+    }
+
+    .word-history-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .word-history-panel {
+      border-radius: 12px;
+      background: rgba(15,23,42,0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 10px;
+      min-height: 92px;
+    }
+
+    .word-history-panel h3 {
+      font-size: 14px;
+      margin: 0 0 8px;
+      text-align: center;
+    }
+
+    .word-history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .word-history-item {
+      padding: 7px 8px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.07);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .word-history-en {
+      font-weight: 900;
+      color: #e0f2fe;
+    }
+
+    .word-history-jp {
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .word-history-selected {
+      color: #fecaca;
+      margin-top: 2px;
+      font-size: 12px;
+    }
+
+    .word-history-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 12px 0;
+    }
+
+    @media (max-width: 420px) {
+      .word-history-columns {
+        grid-template-columns: 1fr;
+      }
+      .word-history-list {
+        max-height: 120px;
+      }
+    }
+
     @keyframes comboPop {
       0% {
         opacity: 0;
@@ -667,6 +750,20 @@
           <div class="result-box">
             <div class="k">Max Combo</div>
             <div class="v" id="finalMaxCombo">0</div>
+          </div>
+        </div>
+
+        <div id="wordHistoryBox" class="word-history-box">
+          <div class="word-history-title">今回出た単語</div>
+          <div class="word-history-columns">
+            <div class="word-history-panel">
+              <h3>✅ 正解した単語</h3>
+              <div id="correctWordList" class="word-history-list"></div>
+            </div>
+            <div class="word-history-panel">
+              <h3>❌ 間違えた単語</h3>
+              <div id="wrongWordList" class="word-history-list"></div>
+            </div>
           </div>
         </div>
 
@@ -1813,17 +1910,6 @@
 { jp: "発症", en: "onset" }
 ];
 
-const bgm = document.getElementById("bgm");
-const correctSound = document.getElementById("correctSound");
-const wrongSound = document.getElementById("wrongSound");
-
-function startBGM() {
-  if (bgm.paused) {
-    bgm.volume = 0.35;
-    bgm.currentTime = 0;
-    bgm.play();
-  }
-}
     const scoreValue = document.getElementById('scoreValue');
     const timeValue = document.getElementById('timeValue');
     const comboValue = document.getElementById('comboValue');
@@ -1853,6 +1939,8 @@ function startBGM() {
     const finalAccuracy = document.getElementById('finalAccuracy');
     const finalCorrect = document.getElementById('finalCorrect');
     const finalMaxCombo = document.getElementById('finalMaxCombo');
+    const correctWordList = document.getElementById('correctWordList');
+    const wrongWordList = document.getElementById('wrongWordList');
 
     const rankingList = document.getElementById('rankingList');
     const rankingScreenList = document.getElementById('rankingScreenList');
@@ -1879,7 +1967,9 @@ function startBGM() {
       questionLocked: false,
       tickTimer: null,
       balloons: [],
-      scoreSavedThisRound: false
+      scoreSavedThisRound: false,
+      correctWords: [],
+      wrongWords: []
     };
 
     function ensureAudio() {
@@ -1909,6 +1999,73 @@ function startBGM() {
       gain.connect(audioCtx.destination);
       osc.start(now);
       osc.stop(now + duration + 0.02);
+    }
+
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function addWordHistory(type, question, selectedWord = '') {
+      if (!question) return;
+      const record = {
+        jp: question.jp,
+        en: question.en,
+        selected: selectedWord
+      };
+      if (type === 'correct') {
+        GAME.correctWords.push(record);
+      } else {
+        GAME.wrongWords.push(record);
+      }
+    }
+
+    function uniqueWordHistory(records) {
+      const map = new Map();
+      records.forEach((record) => {
+        if (!record || !record.en) return;
+        if (!map.has(record.en)) {
+          map.set(record.en, { ...record, count: 1 });
+        } else {
+          const existing = map.get(record.en);
+          existing.count += 1;
+          if (record.selected && record.selected !== existing.selected) {
+            existing.selected = `${existing.selected} / ${record.selected}`;
+          }
+        }
+      });
+      return [...map.values()];
+    }
+
+    function renderWordHistoryList(el, records, isWrong = false) {
+      const uniqueRecords = uniqueWordHistory(records);
+      if (!uniqueRecords.length) {
+        el.innerHTML = '<div class="word-history-empty">なし</div>';
+        return;
+      }
+      el.innerHTML = uniqueRecords.map((word) => {
+        const countLabel = word.count > 1 ? ` ×${word.count}` : '';
+        const selectedLabel = isWrong && word.selected
+          ? `<div class="word-history-selected">選んだ答え：${escapeHtml(word.selected)}</div>`
+          : '';
+        return `
+          <div class="word-history-item">
+            <div class="word-history-en">${escapeHtml(word.en)}${countLabel}</div>
+            <div class="word-history-jp">${escapeHtml(word.jp)}</div>
+            ${selectedLabel}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderWordHistory() {
+      renderWordHistoryList(correctWordList, GAME.correctWords, false);
+      renderWordHistoryList(wrongWordList, GAME.wrongWords, true);
     }
 
     function soundCorrect() { playTone(740, 0.08, 'triangle', 0.05, 880); }
@@ -2179,6 +2336,7 @@ function startBGM() {
         GAME.attemptCount += 1;
         ensureAudio();
         GAME.correctCount += 1;
+        addWordHistory('correct', GAME.currentQuestion);
         handleComboOnCorrect(now);
 
         const gained = 10 * getMultiplier(GAME.combo);
@@ -2204,6 +2362,8 @@ function startBGM() {
         GAME.comboDeadline = null;
         showComboPopup(0);
 
+        addWordHistory('wrong', GAME.currentQuestion, 'BOMB');
+
         GAME.score = Math.max(0, GAME.score - 20);
         GAME.timeLeft = Math.max(0, GAME.timeLeft - 5);
 
@@ -2221,6 +2381,8 @@ function startBGM() {
         GAME.combo = 0;
         GAME.comboDeadline = null;
         showComboPopup(0);
+
+        addWordHistory('wrong', GAME.currentQuestion, button.textContent);
 
         GAME.score = Math.max(0, GAME.score - 5);
         GAME.timeLeft = Math.max(0, GAME.timeLeft - 3);
@@ -2276,6 +2438,9 @@ function startBGM() {
       GAME.questionLocked = false;
       GAME.lastCountdownBeepSecond = null;
       GAME.scoreSavedThisRound = false;
+      GAME.correctWords = [];
+      GAME.wrongWords = [];
+      renderWordHistory();
       showComboPopup(0);
       saveStatus.textContent = "";
 
@@ -2454,24 +2619,16 @@ function startBGM() {
       finalAccuracy.textContent = `${accuracy}%`;
       finalCorrect.textContent = GAME.correctCount;
       finalMaxCombo.textContent = GAME.maxCombo;
+      renderWordHistory();
       resultOverlay.classList.remove('hidden');
 
       await saveHighScore(bonusScore, accuracy);
       await loadRanking(currentMode, rankingList);
     }
 
-   startIeltsBtn.addEventListener("click", () => {
-  startBGM(); // ←追加
-  startGame("ielts");
-});
-   startSystan3Btn.addEventListener("click", () => {
-  startBGM();
-  startGame("systan3");
-});
-    startSystan4Btn.addEventListener("click", () => {
-  startBGM();
-  startGame("systan4");
-});
+    startIeltsBtn.addEventListener('click', () => startGame("ielts"));
+    startSystan3Btn.addEventListener('click', () => startGame("systan3"));
+    startSystan4Btn.addEventListener('click', () => startGame("systan4"));
 
     playAgainBtn.addEventListener('click', () => startGame(currentMode));
     retryBtn.addEventListener('click', () => startGame(currentMode));
